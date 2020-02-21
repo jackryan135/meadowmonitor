@@ -3,6 +3,7 @@
 ### To deploy on MAMP -
 
 To deploy these files to MAMP, copy common.php and config.php from /private_files/ to 
+
 ```
 /Applications/MAMP/
 ```
