@@ -1,7 +1,7 @@
 <?php
 if (isset($_POST['submit'])) {
-	require "../config.php";
-	require "../common.php";
+	require "../../private/config.php";
+	require "../../private/common.php";
 
 	try {
 		$connection = new PDO($dsn, $username, $password, $options);

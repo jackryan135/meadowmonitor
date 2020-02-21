@@ -1,6 +1,6 @@
 <?php
 
-$host       = "localhost";
+$host       = "mysql";
 $username   = "root";
 $password   = "root";
 $dbname     = "meadow_monitor";

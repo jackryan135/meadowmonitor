@@ -1,29 +1,27 @@
 <?php
 
-require "../config.php";
-require "../common.php";
+require "../../private/config.php";
+require "../../private/common.php";
 
 if (isset($_POST['submit'])) {
 	try {
 		$connection = new PDO($dsn, $username, $password, $options);
-		$user = [
+		$device = [
 			"id"        => $_POST['id'],
-			"firstname" => $_POST['firstname'],
-			"lastname"  => $_POST['lastname'],
-			"email"     => $_POST['email'],
+			"ownerID" => $_POST['ownerID'],
+			"plantSpecies"  => $_POST['plantSpecies'],
 			"date"      => $_POST['date']
 		];
 
-		$sql = "UPDATE users
+		$sql = "UPDATE devices
 			  SET id = :id,
-				firstname = :firstname,
-				lastname = :lastname,
-				email = :email,
+				ownerID = :ownerID,
+				plantSpecies = :plantSpecies,
 				date = :date
 			  WHERE id = :id";
 
 		$statement = $connection->prepare($sql);
-		$statement->execute($user);
+		$statement->execute($device);
 	} catch (PDOException $error) {
 		echo $sql . "<br>" . $error->getMessage();
 	}
@@ -34,7 +32,7 @@ if (isset($_GET['id'])) {
 		$connection = new PDO($dsn, $username, $password, $options);
 		$id = $_GET['id'];
 
-		$sql = "SELECT * FROM users WHERE id = :id";
+		$sql = "SELECT * FROM devices WHERE id = :id";
 		$statement = $connection->prepare($sql);
 		$statement->bindValue(':id', $id);
 		$statement->execute();
@@ -52,10 +50,10 @@ if (isset($_GET['id'])) {
 <?php require "templates/header.php"; ?>
 
 <?php if (isset($_POST['submit']) && $statement) : ?>
-	<?php echo escape($_POST['firstname']); ?> successfully updated.
+	<?php echo escape($_POST['id']); ?> successfully updated.
 <?php endif; ?>
 
-<h2>Edit a user</h2>
+<h2>Edit a device</h2>
 
 <form method="post">
 	<?php foreach ($user as $key => $value) : ?>

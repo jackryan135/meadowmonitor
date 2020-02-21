@@ -1,6 +1,6 @@
 <?php
 
-require "../config.php";
+require "../../private/config.php";
 
 try {
   $connection = new PDO("mysql:host=$host", $username, $password, $options);
