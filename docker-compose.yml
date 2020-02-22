@@ -1,14 +1,5 @@
 version: "3.2"
 services:
- # php:
-  #  build: './php/'
-   # networks:
-    #  - backend
-   # volumes:
-   #   - ./public_html/:/var/www/html/
-   #   - ./private_files/:/var/private/
-   # environment:
-   #   PMA_HOST: mysql
   apache:
     build: './php/'
     depends_on:

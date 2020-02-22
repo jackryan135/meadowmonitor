@@ -18,10 +18,16 @@ Copy all other /public_html/ files and folders to
 
 ### To deploy with Docker -
 
-Make sure to have Docker installed on the current device. Then, navigate to the base directory /meadowmonitor/ and run:
+Make sure to have Docker installed on the current device or EC2 instance. Clone repo from git, navigate to the base directory /meadowmonitor/ and run:
+```
+sudo dockerd
+sudo service docker start
+```
 ```
 docker-compose up
 ```
+
+The wesite will be accessible on the host address at port 8080.
 
 ### To Initialize Database -
 
