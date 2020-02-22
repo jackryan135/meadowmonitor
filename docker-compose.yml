@@ -1,18 +1,17 @@
 version: "3.2"
 services:
-  php:
-    build: './php/'
-    networks:
-      - backend
-    volumes:
-      - ./public_html/:/var/www/html/
-      - ./private_files/:/var/private/
-    environment:
-      PMA_HOST: mysql
+ # php:
+  #  build: './php/'
+   # networks:
+    #  - backend
+   # volumes:
+   #   - ./public_html/:/var/www/html/
+   #   - ./private_files/:/var/private/
+   # environment:
+   #   PMA_HOST: mysql
   apache:
-    build: './apache/'
+    build: './php/'
     depends_on:
-      - php
       - mysql
     networks:
       - frontend
@@ -21,6 +20,9 @@ services:
       - "8080:80"
     volumes:
       - ./public_html/:/var/www/html/
+      - ./private_files/:/var/private/
+    environment:
+      PMA_HOST: mysql
   mysql:
     image: mysql:5.6.40
     networks:
