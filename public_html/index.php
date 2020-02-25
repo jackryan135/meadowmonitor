@@ -9,6 +9,7 @@
 			<li><a href="read.php"><strong>Read</strong></a> - find a user</li>
 			<li><a href="update.php"><strong>Update</strong></a> - edit a user</li>
 			<li><a href="delete.php"><strong>Delete</strong></a> - delete a user</li>
+			<li><a href="viewuserlist.php"><strong>List</strong></a> - view list of users</li>
 		</ul>
 	</div>
 </div>
