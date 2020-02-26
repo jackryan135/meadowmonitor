@@ -1,11 +1,16 @@
 from server import conf
-from server.tables import new_session, Devices
+from server.tables import new_session, Devices, Data
 
 
-def history(device_id: str, rows: int):
+def history(device_id: str, rows: int = 5):
     # TODO: update for table chances
     #  return the most recent n rows for the given device
-    pass
+    session = new_session(conf.user, conf.password, conf.host, conf.port, conf.database)
+    # incomplete, but we can filter by daterange if desired:
+    # session.query(Data).filter_by(deviceID=device_id).filter(func.DATE(Data.date) > delta)
+    data_rows = session.query(Data).filter_by(deviceID=device_id).order_by(Data.date.desc()).all()
+    output = [data.json() for data in data_rows[:rows]]
+    return output
 
 
 def plant(device_id: str):
@@ -15,7 +20,8 @@ def plant(device_id: str):
 
 
 def change_plant(device_id: str, species: bytes):
-    # TODO: update for table chances
+    # TODO: update for table changes
+    # TODO: create a 'update device plant' method, probably in tables
     species = species.decode('utf-8')  # unfortunate that this is required with plaintext parameters :(
     print(device_id, species)
     return "ok"
@@ -25,6 +31,6 @@ def list_devices(user_id: str):
     session = new_session(conf.user, conf.password, conf.host, conf.port, conf.database)
     devices = session.query(Devices).filter_by(ownerID=user_id).all()
     devices = [
-        {'user_id': device.ownerID, 'plant_type': device.plant.plantName} for device in devices
+        {'device_id': device.id, 'plant_type': device.plant.plantName} for device in devices
     ]
     return devices

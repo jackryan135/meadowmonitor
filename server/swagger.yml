@@ -14,7 +14,7 @@ basePath: "/api"
 paths:
   /emb/{device_id}/desired/:
     get:
-      operationId: "emb.desired"
+      operationId: "server.emb.desired"
       tags:
         - emb
       summary: "Fetch the desired values for the embedded device's plant"
@@ -46,7 +46,7 @@ paths:
 
   /emb/{device_id}/log/:
     post:
-      operationId: "emb.log"
+      operationId: "server.emb.log"
       tags:
         - emb
       summary: "Log current sensor values for the embedded device's plant"
@@ -81,7 +81,7 @@ paths:
 
   /webapp/{device_id}/history/:
     get:
-      operationId: "webapp.history"
+      operationId: "server.webapp.history"
       tags:
         - webapp
       summary: "Fetch historical sensor data for an embedded device"
@@ -96,6 +96,7 @@ paths:
           name: rows
           required: false
           type: integer
+          default: 5
           description: "number of rows to fetch"
       responses:
         200:
@@ -104,6 +105,8 @@ paths:
             type: array
             items:
               properties:
+                device_id:
+                  type: string
                 date:
                   type: string
                 species:
@@ -119,7 +122,7 @@ paths:
 
   /webapp/{device_id}/plant:
     get:
-      operationId: "webapp.plant"
+      operationId: "server.webapp.plant"
       tags:
         - webapp
       summary: "Fetch current plant for an embedded device"
@@ -137,7 +140,7 @@ paths:
             type: string
   /webapp/{device_id}/plant/change:
     post:
-      operationId: "webapp.change_plant"
+      operationId: "server.webapp.change_plant"
       tags:
         - webapp
       summary: "Change the plant species of the device"
@@ -164,7 +167,7 @@ paths:
 
   /webapp/{user_id}:
     get:
-      operationId: "webapp.list_devices"
+      operationId: "server.webapp.list_devices"
       tags:
         - webapp
       summary: "List a user's owned device IDs and plants"
@@ -182,7 +185,7 @@ paths:
             type: array
             items:
               properties:
-                user_id:
+                device_id:
                   type: string
                 plant_type:
                   type: string

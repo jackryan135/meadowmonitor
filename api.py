@@ -6,7 +6,7 @@ from flask import render_template
 from server import conf, tables
 
 app = connexion.App(__name__, specification_dir='./')
-app.add_api('swagger.yml')
+app.add_api('server/swagger.yml')
 
 
 @app.route('/')
