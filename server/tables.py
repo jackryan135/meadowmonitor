@@ -27,6 +27,12 @@ class Users(Base):
 
     devices = relationship('Devices', back_populates='user')
 
+    def __repr__(self):
+        return (
+            f'<Users: id={self.id}, firstname={self.firstname}, lastname={self.lastname}, email={self.email}, '
+            f'date={self.date}>'
+        )
+
 
 class Devices(Base):
     __tablename__ = 'devices'
@@ -43,6 +49,13 @@ class Devices(Base):
     user = relationship('Users', back_populates='devices')
     plant = relationship('Plants')
 
+    def __repr__(self):
+        return (
+            f'<Devices: id={self.id}, ownerID={self.ownerID}, idealPlantID={self.idealPlantID}, '
+            f'idealPH={self.idealPH}, idealTemp={self.idealTemp}, idealLight={self.idealLight}, '
+            f'idealMoisture={self.idealMoisture}, date={self.date}>'
+        )
+
 
 class Data(Base):
     __tablename__ = 'data'
@@ -58,11 +71,31 @@ class Data(Base):
 
     plant = relationship('Plants')
 
+    def __repr__(self):
+        return (
+            f'<Data: id={self.id}, plantID={self.plantID}, ph={self.ph}, temp={self.temp}, light={self.light}, '
+            f'moisture={self.moisture}, date={self.date}>'
+        )
+
+    def json(self):
+        return {
+            'device_id': self.deviceID,
+            'date': self.date,
+            'species': self.plant.plantName,
+            'light': self.light,
+            'moisture': self.moisture,
+            'ph': self.ph,
+            'temp': self.temp,
+        }
+
 
 class Plants(Base):
     __tablename__ = 'plants'
     id = Column(Integer, primary_key=True)
     plantName = Column(String(100))
+
+    def __repr__(self):
+        return f'<Plants: id={self.id}, plantName={self.plantName}>'
 
 
 # class Data(object):
