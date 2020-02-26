@@ -1,0 +1,191 @@
+swagger: "2.0"
+info:
+  description: "This is the swagger file that goes with our Meadow Monitor server"
+  version: "1.0.0"
+  title: "Swagger REST Article"
+consumes:
+  - "application/json"
+produces:
+  - "application/json"
+
+basePath: "/api"
+
+# Paths supported by the server application
+paths:
+  /emb/{device_id}/desired/:
+    get:
+      operationId: "emb.desired"
+      tags:
+        - emb
+      summary: "Fetch the desired values for the embedded device's plant"
+      parameters:
+        - in: path
+          name: device_id
+          required: true
+          type: string
+          minimum: 1
+          description: "Device ID"
+      responses:
+        200:
+          description: "Successful desired values json operation"
+          schema:
+            type: object
+            properties:
+#              plant_type:
+#                type: "string"
+              moisture:
+                type: string
+              light:
+                type: string
+              temperature_min:
+                type: number
+              ph_min:
+                type: number
+              ph_max:
+                type: number
+
+  /emb/{device_id}/log/:
+    post:
+      operationId: "emb.log"
+      tags:
+        - emb
+      summary: "Log current sensor values for the embedded device's plant"
+      parameters:
+        - in: path
+          name: device_id
+          required: true
+          type: string
+          minimum: 1
+          description: "Device ID"
+        - in: body
+          name: values
+          required: true
+          schema:
+            type: object
+            properties:
+#              date:
+#                type: string
+#              species:
+#                type: string
+              light:
+                type: number
+              moisture:
+                type: number
+              ph:
+                type: number
+              temp:
+                type: number
+      responses:
+        200:
+          description: "Successful sensor value log"
+
+  /webapp/{device_id}/history/:
+    get:
+      operationId: "webapp.history"
+      tags:
+        - webapp
+      summary: "Fetch historical sensor data for an embedded device"
+      parameters:
+        - in: path
+          name: device_id
+          required: true
+          type: string
+          minimum: 1
+          description: "Device ID"
+        - in: query
+          name: rows
+          required: false
+          type: integer
+          description: "number of rows to fetch"
+      responses:
+        200:
+          description: "Successful historical data fetch"
+          schema:
+            type: array
+            items:
+              properties:
+                date:
+                  type: string
+                species:
+                  type: string
+                light:
+                  type: number
+                moisture:
+                  type: number
+                ph:
+                  type: number
+                temp:
+                  type: number
+
+  /webapp/{device_id}/plant:
+    get:
+      operationId: "webapp.plant"
+      tags:
+        - webapp
+      summary: "Fetch current plant for an embedded device"
+      parameters:
+        - in: path
+          name: device_id
+          required: true
+          type: string
+          minimum: 1
+          description: "Device ID"
+      responses:
+        200:
+          description: "Successful plant type fetch"
+          schema:
+            type: string
+  /webapp/{device_id}/plant/change:
+    post:
+      operationId: "webapp.change_plant"
+      tags:
+        - webapp
+      summary: "Change the plant species of the device"
+      consumes:
+        - "text/plain"
+      parameters:
+        - in: path
+          name: device_id
+          required: true
+          type: string
+          minimum: 1
+          description: "Device ID"
+        - in: body
+          name: species
+          required: true
+          schema:
+            type: string
+          description: "The new plant species to change to"
+      responses:
+        200:
+          description: "Successful update"
+          schema:
+            type: string
+
+  /webapp/{user_id}:
+    get:
+      operationId: "webapp.list_devices"
+      tags:
+        - webapp
+      summary: "List a user's owned device IDs and plants"
+      parameters:
+        - in: path
+          name: user_id
+          required: true
+          type: string
+          minimum: 1
+          description: "User ID"
+      responses:
+        200:
+          description: "Successful device list fetch"
+          schema:
+            type: array
+            items:
+              properties:
+                user_id:
+                  type: string
+                plant_type:
+                  type: string
+#  # /webapp/{user_id}/add:
+#  #   post:
+#  #     ...

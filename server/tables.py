@@ -1,0 +1,199 @@
+import datetime
+import random
+from typing import List
+
+import sqlalchemy
+from sqlalchemy import Column, Integer, String, Date, Float, DateTime
+from sqlalchemy import ForeignKey
+from sqlalchemy import create_engine, MetaData, Table
+from sqlalchemy.engine import Engine
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import mapper, sessionmaker
+from sqlalchemy.orm import relationship
+from sqlalchemy_utils import database_exists, create_database
+
+from server import conf, trefle
+
+Base = declarative_base()
+
+
+class Users(Base):
+    __tablename__ = 'users'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    firstname = Column(String(30))
+    lastname = Column(String(30))
+    email = Column(String(50))
+    date = Column(Date)
+
+    devices = relationship('Devices', back_populates='user')
+
+
+class Devices(Base):
+    __tablename__ = 'devices'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    ownerID = Column(Integer, ForeignKey('users.id'), nullable=False)  # foreign key -> users
+    # idealPlantSpecies = Column(String)  # changed to idealPlantID
+    idealPlantID = Column(Integer, ForeignKey('plants.id'))
+    idealPH = Column(Float)
+    idealTemp = Column(Float)
+    idealLight = Column(Float)  # go to str
+    idealMoisture = Column(Float)  # go to str
+    date = Column(Date)
+
+    user = relationship('Users', back_populates='devices')
+    plant = relationship('Plants')
+
+
+class Data(Base):
+    __tablename__ = 'data'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    deviceID = Column(Integer, ForeignKey('devices.id'), nullable=False)  # foreign key -> devices
+    # plantSpecies = Column(String)  # changed to plantID
+    plantID = Column(Integer, ForeignKey('plants.id'))
+    ph = Column(Float)
+    temp = Column(Float)
+    light = Column(Float)
+    moisture = Column(Float)
+    date = Column(DateTime)
+
+    plant = relationship('Plants')
+
+
+class Plants(Base):
+    __tablename__ = 'plants'
+    id = Column(Integer, primary_key=True)
+    plantName = Column(String(100))
+
+
+# class Data(object):
+#     pass
+#
+#
+# class Devices(object):
+#     pass
+#
+#
+# class Users(object):
+#     pass
+
+
+def _mysql_engine(user: str, password: str, host: str, port: int, database: str, pool_recycle: int = 3600) -> Engine:
+    return create_engine(f'mysql+mysqlconnector://{user}:{password}@{host}:{port}/{database}',
+                         pool_recycle=pool_recycle)
+
+
+# NOTE: This isn't used if we're making schemas in sqlalchemy
+# def map_session(user: str, password: str, host: str, port: int, database: str) -> sqlalchemy.orm.session.Session:
+#     # engine = create_engine(f'mysql+mysqlconnector://{user}:{password}@{host}:{port}/{database}',
+#     #                        pool_recycle=3600)
+#     engine = _mysql_engine(user, password, host, port, database)
+#
+#     metadata = MetaData(engine)
+#     moz_data = Table('data', metadata, autoload=True)
+#     mapper(Data, moz_data)
+#     moz_devices = Table('devices', metadata, autoload=True)
+#     mapper(Devices, moz_devices)
+#     moz_users = Table('users', metadata, autoload=True)
+#     mapper(Users, moz_users)
+#
+#     Session = sessionmaker(bind=engine)
+#     session = Session()
+#     return session
+
+
+def new_session(user: str, password: str, host: str, port: int, database: str) -> sqlalchemy.orm.session.Session:
+    engine = _mysql_engine(user, password, host, port, database)
+    Session = sessionmaker(bind=engine)
+    session = Session()
+    return session
+
+
+# # # testing / data population functions # # #
+
+def create_meadowmonitor_database(user: str, password: str, host: str, port: int, database: str):
+    engine = _mysql_engine(user, password, host, port, database)
+    if not database_exists(engine.url):
+        create_database(engine.url)
+    Base.metadata.create_all(bind=engine)
+
+
+def create_test_data():
+    sesh = new_session(user=conf.user, password=conf.password, host=conf.host, port=conf.port,
+                       database=conf.database)
+
+    users = [
+        ("Jeff", "Bridges", "jbridges@test.com"),
+        ("Jennifer", "Anniston", "janniston@test.com"),
+        ("Brad", "Pitt", "bpitt@test.com"),
+        ("Oprah", "Winfrey", "owinfrey@test.com"),
+        ("Zach", "Efron", "zefron@test.com"),
+    ]
+
+    user_rows = []
+    for user in users:
+        user_row = Users(firstname=user[0], lastname=user[1], email=user[2])
+        user_rows.append(user_row)
+    sesh.add_all(user_rows)
+    sesh.commit()
+
+    plants = [
+        (169882, "western swordfern"),
+        (175949, "Puerto Rico royal palm"),
+        (175874, "Virginia rose"),
+        (114322, "sagebrush mariposa lily"),
+        (141504, "common sunflower"),
+        (160569, "Barbary fig"),
+    ]
+    plant_rows = []
+    for plant in plants:
+        plant_row = Plants(id=plant[0], plantName=plant[1])
+        plant_rows.append(plant_row)
+    sesh.add_all(plant_rows)
+    sesh.commit()
+
+    users = sesh.query(Users).all()  # type: List[Users]
+    users.append(users[0])  # add jeff bridges again
+    device_rows = []
+    for user, plant in zip(users, plants):
+        plant_data = trefle.get_species(plant[0]).json()['growth']
+        device_row = Devices(
+            ownerID=user.id,
+            idealPlantID=plant[0],
+            idealPH=(plant_data['ph_minimum'] + plant_data['ph_maximum']) / 2,
+            idealTemp=plant_data['temperature_minimum']['deg_f'],
+            idealLight=random.randrange(300, 999),
+            # these should both be maps of str -> float, i don't want to deal with it right now.
+            idealMoisture=random.randrange(300, 999),
+            # these should both be maps of str -> float, i don't want to deal with it right now.
+        )
+        device_rows.append(device_row)
+    sesh.add_all(device_rows)
+    sesh.commit()
+
+    devices = sesh.query(Devices).all()  # type: List[Devices]
+    plants = sesh.query(Plants).all()  # type: List[Plants]
+    data_rows = []
+    for device, plant in zip(devices, plants):
+        date = datetime.datetime.utcnow()
+        ph = 7
+        temp = 65
+        light = 30
+        moisture = 42
+        for i in range(10):
+            data = Data(
+                deviceID=device.id,
+                plantID=plant.id,
+                ph=ph,
+                temp=temp,
+                light=light,
+                moisture=moisture,
+                date=date,
+            )
+            data_rows.append(data)
+            date += datetime.timedelta(minutes=60)
+            ph += random.random()
+            temp += (random.random() - 0.5) * 8
+            light += (random.random() - 0.5) * 4
+            moisture += (random.random() - 0.5) * 4
+    sesh.add_all(data_rows)
+    sesh.commit()

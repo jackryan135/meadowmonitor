@@ -31,4 +31,20 @@ The wesite will be accessible on the host address at port 8080.
 
 ### To Initialize Database -
 
-To initialize the MySQL database, first turn on the Apache and MySQL servers by pressing the "Start Servers" button on the MAMP window. Then, visit the URL [localhost:8080/install.php](localhost:8080/install.php)
+To initialize the MySQL database, first turn on the Apache and MySQL servers by pressing the "Start Servers" button on the MAMP window. ~~Then, visit the URL [localhost:8080/install.php](localhost:8080/install.php)~~
+
+The primary difference here is that we're initializing the tables using SQLAlchemy in Python; see `server/tables.py` for the schema.
+```py
+# run:
+import os
+
+from server import conf
+from server import tables
+
+conf.trefle_token = os.environ['COEN315_TREFLE_TOKEN']  # or whatever
+# create the database and tables
+tables.create_meadowmonitor_database(user=conf.user, password=conf.password, host=conf.host, port=conf.port,
+                                     database=conf.database)
+# fill out the tables with test data if desired
+tables.create_test_data()
+```
