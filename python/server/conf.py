@@ -2,8 +2,8 @@
 
 user = 'root'
 password = 'root'
-host = 'localhost'
+host = 'mysql'
 database = 'meadow_monitor'
-port = 8889
+port = 3306
 
-trefle_token = None  # set it yourself but not on github
+trefle_token = "" # set it yourself but not on github

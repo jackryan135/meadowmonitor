@@ -1,8 +1,8 @@
 <?php
 if (isset($_GET['id'])) {
 	try {
-		require "../config.php";
-		require "../common.php";
+		require "../../private/config.php";
+		require "../../private/common.php";
 
 		$connection = new PDO($dsn, $username, $password, $options);
 		$id = $_GET['id'];

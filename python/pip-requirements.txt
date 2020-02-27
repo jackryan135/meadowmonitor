@@ -1,7 +1,7 @@
 connexion[swagger-ui]
 Flask-SQLAlchemy
 ipython
-mysqlclient  // maybe unused
+mysqlclient
 mysql-connector-python
 sqlalchemy
 sqlalchemy-utils
