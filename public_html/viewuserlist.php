@@ -1,8 +1,8 @@
 <?php
 
 try {
-	require "../../private/config.php";
-	require "../../private/common.php";
+	require "../config.php";
+	require "../common.php";
 
 	$connection = new PDO($dsn, $username, $password, $options);
 
