@@ -21,3 +21,9 @@ th {
 body {
     background-color: #d9fce5;
 }
+
+.chart-container {
+    width: 640px;
+    height: auto;
+    display: block;
+}
