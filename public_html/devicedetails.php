@@ -108,7 +108,7 @@ if (isset($_GET['id'])) {
 					<p><strong><?php echo $user['light']; ?></strong></p>
 				</div>
 			</div>
-			<div class="card bg-danger text-white text-center p-1">
+			<div class="card bg-info text-white text-center p-1">
 				<h5 style="padding-top: 16px;">Moisture Level</h5>
 				<div id="moistureDiv">
 					<p><strong><?php echo $user['moisture']; ?></strong></p>
@@ -189,11 +189,11 @@ if (isset($_GET['id'])) {
 						label: "Tempurature",
 						data: tempData,
 						borderWidth: 2,
-						backgroundColor: "rgba(6, 6, 200, 0.1)",
-						borderColor: "rgba(6, 6, 200, 1)",
+						backgroundColor: "rgba(6, 6, 160, 0.1)",
+						borderColor: "rgba(6, 6, 160, 1)",
 						pointBackgroundColor: "rgba(225, 225, 225, 1)",
-						pointBorderColor: "rgba(6, 6, 200, 1)",
-						pointHoverBackgroundColor: "rgba(6, 6, 200, 1)",
+						pointBorderColor: "rgba(6, 6, 160, 1)",
+						pointHoverBackgroundColor: "rgba(6, 6, 160, 1)",
 						pointHoverBorderColor: "#fff"
 					}]
 				},
@@ -207,7 +207,7 @@ if (isset($_GET['id'])) {
 						label: "Light",
 						data: lightData,
 						borderWidth: 2,
-						backgroundColor: "rgba(235, 235, 6, 0.1)",
+						backgroundColor: "rgba(235, 235, 6, 0.3)",
 						borderColor: "rgba(235, 235, 6, 1)",
 						pointBackgroundColor: "rgba(225, 225, 225, 1)",
 						pointBorderColor: "rgba(235, 235, 6, 1)",
@@ -225,11 +225,11 @@ if (isset($_GET['id'])) {
 						label: "Moisture",
 						data: moistureData,
 						borderWidth: 2,
-						backgroundColor: "rgba(255, 6, 6, 0.1)",
-						borderColor: "rgba(255, 6, 6, 1)",
+						backgroundColor: "rgba(6, 50, 255, 0.1)",
+						borderColor: "rgba(6, 50, 255, 1)",
 						pointBackgroundColor: "rgba(225, 225, 225, 1)",
-						pointBorderColor: "rgba(255, 6, 6, 1)",
-						pointHoverBackgroundColor: "rgba(255, 6, 6, 1)",
+						pointBorderColor: "rgba(6, 50, 255, 1)",
+						pointHoverBackgroundColor: "rgba(6, 50, 255, 1)",
 						pointHoverBorderColor: "#fff"
 					}]
 				},
