@@ -1,5 +1,7 @@
+import datetime
+
 from server import conf, trefle
-from server.tables import new_session, Devices
+from server.tables import new_session, Devices, Data
 import pprint
 from typing import Any, Dict
 
@@ -34,19 +36,33 @@ def log(device_id: str, values: Dict[str, Any]):
     # entry.plantSpecies = "test",  # eventually map this to the Devices table
     # entry.temp = values['temp'],
 
-    session.execute(
-        "insert into DATA("
-        "   deviceID, plantSpecies, ph, temp, light, moisture"
-        ") VALUES ("
-        f"  {device_id}, \"{'strawberry'}\", {values['ph']}, {values['temp']}, {values['light']}, {values['moisture']}"
-        ")"
+    device = session.query(Devices).filter_by(id=device_id).one_or_none()
+
+    data_row = Data(
+        deviceID=device.id,
+        plantID=device.idealPlantID,
+        ph=values['ph'],
+        temp=values['temp'],
+        light=values['light'],
+        moisture=values['moisture'],
+        date=datetime.datetime.utcnow(),
     )
+    session.add(data_row)
     session.commit()
+
+    # session.execute(
+    #     "insert into DATA("
+    #     "   deviceID, plantSpecies, ph, temp, light, moisture"
+    #     ") VALUES ("
+    #     f"  {device_id}, \"{'strawberry'}\", {values['ph']}, {values['temp']}, {values['light']}, {values['moisture']}"
+    #     ")"
+    # )
+    # session.commit()
 
     # for attr in vars(entry):
     #     if attr[0] != '_':
     #         print(attr, entry.__getattribute__(attr))
     # session.add(entry)
     # session.commit()
-    pprint.pprint(f'logged for device {device_id}: {values}')
-    return "nice"
+    # pprint.pprint(f'logged for device {device_id}: {values}')
+    return data_row.id
