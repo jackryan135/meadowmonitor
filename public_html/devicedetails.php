@@ -1,7 +1,7 @@
 <?php
 
-require "../../private/config.php";
-require "../../private/common.php";
+require "../config.php";
+require "../common.php";
 
 
 if (isset($_POST['submit'])) {
