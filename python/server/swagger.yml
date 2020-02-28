@@ -76,7 +76,7 @@ paths:
               temp:
                 type: number
       responses:
-        200:
+        201:
           description: "Successful sensor value log"
 
   /webapp/{device_id}/history/:

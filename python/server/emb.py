@@ -9,6 +9,8 @@ from typing import Any, Dict
 def desired(device_id: str):
     session = new_session(conf.user, conf.password, conf.host, conf.port, conf.database)
     device = session.query(Devices).filter_by(id=device_id).one_or_none()  # type: Devices
+    if device is None:
+        return 'Device not found', 404
     desired_values = trefle.get_desired(device.idealPlantID)
     return desired_values
 
@@ -37,6 +39,8 @@ def log(device_id: str, values: Dict[str, Any]):
     # entry.temp = values['temp'],
 
     device = session.query(Devices).filter_by(id=device_id).one_or_none()
+    if device is None:
+        return 'Device not found', 404
 
     data_row = Data(
         deviceID=device.id,
@@ -65,4 +69,4 @@ def log(device_id: str, values: Dict[str, Any]):
     # session.add(entry)
     # session.commit()
     # pprint.pprint(f'logged for device {device_id}: {values}')
-    return data_row.id
+    return data_row.id, 201
