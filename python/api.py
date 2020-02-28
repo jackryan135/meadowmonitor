@@ -20,6 +20,7 @@ if __name__ == '__main__':
     # map_session(user=conf.user, password=conf.password, host=conf.host, port=conf.port, database=conf.database)  # not used if we're creating schema in sqlalchemy
     tables.create_meadowmonitor_database(user=conf.user, password=conf.password, host=conf.host, port=conf.port,
                                          database=conf.database)
+    #tables.create_test_data()
     app.run(host='0.0.0.0', port=5000, debug=True)
 
 
