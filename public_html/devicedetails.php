@@ -44,7 +44,7 @@ if (isset($_GET['id'])) {
 
 		$user = $statement->fetch(PDO::FETCH_ASSOC);
 
-		$devicesql = "SELECT * FROM devices WHERE id = :id";
+		$devicesql = "SELECT plants.plantName, devices.id, devices.idealTemp, devices.idealPH, devices.idealMoisture, devices.idealLight FROM devices INNER JOIN plants ON devices.idealPlantID = plants.ID WHERE devices.id = :id";
 		$devicestatement = $connection->prepare($devicesql);
 		$devicestatement->bindValue(':id', $id);
 		$devicestatement->execute();
@@ -119,13 +119,13 @@ if (isset($_GET['id'])) {
 
 	<div class="px-xl-5" style="margin: 20px;">
 		<h5>Historical Data:</h5>
-		<p><strong>Tempurature</strong></p>
+		<p class="graph-label"><strong>Tempurature</strong></p>
 		<div><canvas class="chart-container" id="tempchart-container"></canvas></div>
-		<p><strong>pH</strong></p>
+		<p class="graph-label"><strong>pH</strong></p>
 		<div><canvas class="chart-container" id="phchart-container"></canvas></div>
-		<p><strong>Light Level</strong></p>
+		<p class="graph-label"><strong>Light Level</strong></p>
 		<div><canvas class="chart-container" id="lightchart-container"></canvas></div>
-		<p><strong>Moisture Level</strong></p>
+		<p class="graph-label"><strong>Moisture Level</strong></p>
 		<div><canvas class="chart-container" id="moistchart-container"></canvas></div>
 	</div>
 
@@ -294,7 +294,7 @@ if (isset($_GET['id'])) {
 			</div>
 			<div class="form-row">
 				<div class="col">
-					<input type="text" class="form-control" name="idealPlantSpecies" id="idealPlantSpecies" value="<?php echo $device['idealPlantSpecies'] ?>">
+					<input type="text" class="form-control" name="idealPlantSpecies" id="idealPlantSpecies" value="<?php echo $device['plantName'] ?>">
 					</input>
 				</div>
 				<div class="col">

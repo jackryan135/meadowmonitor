@@ -27,3 +27,7 @@ body {
     height: auto;
     display: block;
 }
+
+.graph-label {
+    margin-top: 20px;
+}

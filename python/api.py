@@ -21,7 +21,8 @@ if __name__ == '__main__':
         conf.trefle_token = os.environ['COEN315_TREFLE_TOKEN']
     tables.create_meadowmonitor_database(user=conf.user, password=conf.password, host=conf.host, port=conf.port,
                                          database=conf.database)
-    tables.create_test_data()
+    if conf.populate_database is True:
+        tables.create_test_data()
     app.run(host='0.0.0.0', port=5000, debug=True, use_reloader=False)
 
 

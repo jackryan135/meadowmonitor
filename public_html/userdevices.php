@@ -7,7 +7,7 @@ if (isset($_GET['id'])) {
 		$connection = new PDO($dsn, $username, $password, $options);
 		$id = $_GET['id'];
 
-		$sql = "SELECT * FROM devices WHERE ownerID = :id";
+		$sql = "SELECT devices.id, plants.plantName, devices.date FROM devices INNER JOIN plants ON devices.idealPlantID = plants.ID WHERE ownerID = :id";
 		$statement = $connection->prepare($sql);
 		$statement->bindValue(':id', $id);
 		$statement->execute();
@@ -39,7 +39,7 @@ if (isset($_GET['id'])) {
 			<?php foreach ($device as $row) : ?>
 				<tr>
 					<td><?php echo escape($row["id"]); ?></td>
-					<td><?php echo escape($row["idealPlantSpecies"]); ?></td>
+					<td><?php echo escape($row["plantName"]); ?></td>
 					<td><?php echo escape($row["date"]); ?> </td>
 					<td><a type="button" class="btn btn-success" href="devicedetails.php?id=<?php echo escape($row["id"]); ?>">Details</a></td>
 				</tr>

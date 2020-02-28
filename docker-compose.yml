@@ -47,7 +47,7 @@ services:
     ports:
       - 5001:5000
     volumes:
-      - ./server/:/server/
+      - ./python/:/python/
     environment:
       PMA_HOST: mysql
     restart: on-failure

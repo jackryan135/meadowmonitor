@@ -23,7 +23,7 @@ class Users(Base):
     firstname = Column(String(30))
     lastname = Column(String(30))
     email = Column(String(50))
-    date = Column(Date)
+    date = Column(DateTime)
 
     devices = relationship('Devices', back_populates='user')
 
@@ -44,7 +44,7 @@ class Devices(Base):
     idealTemp = Column(Float)
     idealLight = Column(Float)  # go to str
     idealMoisture = Column(Float)  # go to str
-    date = Column(Date)
+    date = Column(DateTime)
 
     user = relationship('Users', back_populates='devices')
     plant = relationship('Plants')
@@ -157,16 +157,16 @@ def create_test_data():
                        database=conf.database)
 
     users = [
-        ("Jeff", "Bridges", "jbridges@test.com"),
-        ("Jennifer", "Anniston", "janniston@test.com"),
-        ("Brad", "Pitt", "bpitt@test.com"),
-        ("Oprah", "Winfrey", "owinfrey@test.com"),
-        ("Zach", "Efron", "zefron@test.com"),
+        ("Jeff", "Bridges", "jbridges@test.com", datetime.datetime.utcnow()),
+        ("Jennifer", "Anniston", "janniston@test.com", datetime.datetime.utcnow()),
+        ("Brad", "Pitt", "bpitt@test.com", datetime.datetime.utcnow()),
+        ("Oprah", "Winfrey", "owinfrey@test.com", datetime.datetime.utcnow()),
+        ("Zach", "Efron", "zefron@test.com", datetime.datetime.utcnow()),
     ]
 
     user_rows = []
     for user in users:
-        user_row = Users(firstname=user[0], lastname=user[1], email=user[2])
+        user_row = Users(firstname=user[0], lastname=user[1], email=user[2], date=user[3])
         user_rows.append(user_row)
         print("*******User Row Added*******")
     sesh.add_all(user_rows)
@@ -206,6 +206,7 @@ def create_test_data():
             # these should both be maps of str -> float, i don't want to deal with it right now.
             idealMoisture=random.randrange(300, 999),
             # these should both be maps of str -> float, i don't want to deal with it right now.
+            date=datetime.datetime.utcnow()
         )
         device_rows.append(device_row)
         print("*******Device Row Added*******")
