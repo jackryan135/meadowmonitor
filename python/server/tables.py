@@ -23,6 +23,7 @@ class Users(Base):
     firstname = Column(String(30))
     lastname = Column(String(30))
     email = Column(String(50))
+    password = Column(String(255))
     date = Column(DateTime)
 
     devices = relationship('Devices', back_populates='user')

@@ -31,3 +31,58 @@ body {
 .graph-label {
     margin-top: 20px;
 }
+
+body.home {
+    background: url('https://jryan315graphics.s3-us-west-1.amazonaws.com/bg.jpg') no-repeat center center fixed;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    background-size: cover;
+    -o-background-size: cover;
+}
+
+.indexMessage {
+    width: 400px;
+    height: 200px;
+    margin-top: 50px;
+    border-radius: 10px;
+    padding-right: 30px;
+    padding-left: 30px;
+}
+
+.login {
+    width: 400px;
+    height: 350px;
+    margin: auto;
+    margin-top: 10%;
+    border-radius: 10px;
+    padding-right: 30px;
+    padding-left: 30px;
+    background-color: #72f29d;
+}
+
+.register {
+    width: 400px;
+    height: 630px;
+    margin: auto;
+    margin-top: 4%;
+    border-radius: 10px;
+    padding-right: 30px;
+    padding-left: 30px;
+    background-color: #72f29d;
+}
+
+.reset {
+    width: 400px;
+    height: 365px;
+    margin: auto;
+    margin-top: 10%;
+    border-radius: 10px;
+    padding-right: 30px;
+    padding-left: 30px;
+    background-color: #72f29d;
+}
+
+.wrapper {
+    width: 350px;
+    padding: 20px;
+}

@@ -1,11 +1,13 @@
 <?php
-if (isset($_GET['id'])) {
+session_start();
+
+if (isset($_SESSION['id'])) {
 	try {
 		require "../../private/config.php";
 		require "../../private/common.php";
 
 		$connection = new PDO($dsn, $username, $password, $options);
-		$id = $_GET['id'];
+		$id = $_SESSION['id'];
 
 		$sql = "SELECT devices.id, plants.plantName, devices.date FROM devices INNER JOIN plants ON devices.idealPlantID = plants.ID WHERE ownerID = :id";
 		$statement = $connection->prepare($sql);
@@ -17,7 +19,7 @@ if (isset($_GET['id'])) {
 		echo $sql . "<br>" . $error->getMessage();
 	}
 } else {
-	echo "Something went wrong!";
+	header("location: login.php");
 	exit;
 }
 ?>

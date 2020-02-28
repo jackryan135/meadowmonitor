@@ -3,6 +3,32 @@
 require "../../private/config.php";
 require "../../private/common.php";
 
+session_start();
+
+if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] == false){
+	header("location: login.php");
+	exit;
+}
+else{
+	try {
+		$connection = new PDO($dsn, $username, $password, $options);
+		$id = $_SESSION['id'];
+		$deviceID = $_GET['id'];
+
+		$sql = "SELECT ownerID FROM devices WHERE id = :id";
+		$statement = $connection->prepare($sql);
+		$statement->bindValue(':id', $deviceID);
+		$statement->execute();
+
+		$result = $statement->fetch();
+		if($id != $result["ownerID"]){
+			header("location: userdevices.php");
+			exit;
+		}
+	} catch (PDOException $error) {
+		echo $sql . "<br>" . $error->getMessage();
+	}
+}
 
 if (isset($_POST['submit'])) {
 	try {
@@ -93,7 +119,7 @@ if (isset($_GET['id'])) {
 			<div class="card bg-primary text-white text-center p-1">
 				<h5 style="padding-top: 16px;">Tempurature</h5>
 				<div id="tempDiv">
-					<p><strong><?php echo $user['temp']; ?></strong></p>
+					<p><strong><?php echo $user['temp']; ?> ºF</strong></p>
 				</div>
 			</div>
 			<div class="card bg-success text-white text-center p-1">
@@ -289,7 +315,7 @@ if (isset($_GET['id'])) {
 					Desired Moisture
 				</label>
 				<label for="temp" class="col">
-					Desired Tempurature
+					Desired Tempurature (ºF)
 				</label>
 			</div>
 			<div class="form-row">
