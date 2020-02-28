@@ -145,8 +145,10 @@ def new_session(user: str, password: str, host: str, port: int, database: str) -
 
 def create_meadowmonitor_database(user: str, password: str, host: str, port: int, database: str):
     engine = _mysql_engine(user, password, host, port, database)
+    print("*******engine created*******")
     if not database_exists(engine.url):
         create_database(engine.url)
+        print("*******database created*******")
     Base.metadata.create_all(bind=engine)
 
 
@@ -166,8 +168,10 @@ def create_test_data():
     for user in users:
         user_row = Users(firstname=user[0], lastname=user[1], email=user[2])
         user_rows.append(user_row)
+        print("*******User Row Added*******")
     sesh.add_all(user_rows)
     sesh.commit()
+    print("**********Users added*********")
 
     plants = [
         (169882, "western swordfern"),
@@ -181,14 +185,18 @@ def create_test_data():
     for plant in plants:
         plant_row = Plants(id=plant[0], plantName=plant[1])
         plant_rows.append(plant_row)
+        print("*******Plant Row Added*******")
     sesh.add_all(plant_rows)
     sesh.commit()
+    print("*******Plants added*******")
 
     users = sesh.query(Users).all()  # type: List[Users]
     users.append(users[0])  # add jeff bridges again
     device_rows = []
     for user, plant in zip(users, plants):
+        print("*******Before Trefle called*******")
         plant_data = trefle.get_species(plant[0]).json()['growth']
+        print("*******JSON parsed*******")
         device_row = Devices(
             ownerID=user.id,
             idealPlantID=plant[0],
@@ -200,8 +208,10 @@ def create_test_data():
             # these should both be maps of str -> float, i don't want to deal with it right now.
         )
         device_rows.append(device_row)
+        print("*******Device Row Added*******")
     sesh.add_all(device_rows)
     sesh.commit()
+    print("******Devices added*******")
 
     devices = sesh.query(Devices).all()  # type: List[Devices]
     plants = sesh.query(Plants).all()  # type: List[Plants]
@@ -223,6 +233,7 @@ def create_test_data():
                 date=date,
             )
             data_rows.append(data)
+            print("*******Data Row Added*******")
             date += datetime.timedelta(minutes=60)
             ph += random.random()
             temp += (random.random() - 0.5) * 8
@@ -230,3 +241,4 @@ def create_test_data():
             moisture += (random.random() - 0.5) * 4
     sesh.add_all(data_rows)
     sesh.commit()
+    print("*******Data added*******")

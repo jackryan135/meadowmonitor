@@ -9,4 +9,4 @@ WORKDIR /python
 ENV PATH=$PATH:/python
 ENV PYTHONPATH /python
 
-CMD ["python", "api.py"]
+CMD ["python3", "api.py"]
