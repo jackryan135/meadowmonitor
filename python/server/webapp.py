@@ -1,8 +1,10 @@
+from typing import Dict, Any
+
 from server import conf
 from server.tables import new_session, Devices, Data, Users
 
 
-def history(device_id: str, rows: int = 5):
+def history(device_id: int, rows: int = 5):
     # TODO: update for table chances
     #  return the most recent n rows for the given device
     session = new_session(conf.user, conf.password, conf.host, conf.port, conf.database)
@@ -18,15 +20,17 @@ def history(device_id: str, rows: int = 5):
     return output
 
 
-def plant(device_id: str):
+def plant(device_id: int):
     session = new_session(conf.user, conf.password, conf.host, conf.port, conf.database)
     device = session.query(Devices).filter_by(id=device_id).one_or_none()  # type: Devices
     if device is None:
         return 'Device not found', 404
+    if device.plant is None:
+        return None
     return device.plant.plantName
 
 
-def change_plant(device_id: str, species: bytes):
+def change_plant(device_id: int, species: bytes):
     # TODO: update for table changes
     # TODO: create a 'update device plant' method, probably in tables
     # TODO: obv needs to throw a 404 if the device doesn't exist, etc
@@ -37,7 +41,7 @@ def change_plant(device_id: str, species: bytes):
     return None, 501
 
 
-def list_devices(user_id: str):
+def list_devices(user_id: int):
     session = new_session(conf.user, conf.password, conf.host, conf.port, conf.database)
     devices = session.query(Devices).filter_by(ownerID=user_id).all()
     if len(devices) == 0 or devices is None:
@@ -46,6 +50,21 @@ def list_devices(user_id: str):
             return "User not found", 404
         return None, 204
     devices = [
-        {'device_id': device.id, 'plant_type': device.plant.plantName} for device in devices
+        {
+            'device_id': device.id,
+            'plant_type': device.plant.plantName if device.plant is not None else None,
+            'label': device.label,
+        } for device in devices
     ]
     return devices
+
+
+def add_device(user_id: int, values: Dict[str, Any]):
+    session = new_session(conf.user, conf.password, conf.host, conf.port, conf.database)
+    if 'label' in values:
+        device = Devices(ownerID=user_id, label=values['label'])
+    else:
+        device = Devices(ownerID=user_id)
+    session.add(device)
+    session.commit()
+    return device.id, 201

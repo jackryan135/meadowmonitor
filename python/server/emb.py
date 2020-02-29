@@ -6,7 +6,7 @@ import pprint
 from typing import Any, Dict
 
 
-def desired(device_id: str):
+def desired(device_id: int):
     session = new_session(conf.user, conf.password, conf.host, conf.port, conf.database)
     device = session.query(Devices).filter_by(id=device_id).one_or_none()  # type: Devices
     if device is None:
@@ -15,7 +15,7 @@ def desired(device_id: str):
     return desired_values
 
 
-def log(device_id: str, values: Dict[str, Any]):
+def log(device_id: int, values: Dict[str, Any]):
     # TODO: update to work with new db schema
     # session = new_session(conf.user, conf.password, conf.host, conf.port, conf.database)
     session = new_session(conf.user, conf.password, conf.host, conf.port, conf.database)

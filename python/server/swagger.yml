@@ -22,7 +22,7 @@ paths:
         - in: path
           name: device_id
           required: true
-          type: string
+          type: integer
           minimum: 1
           description: "Device ID"
       responses:
@@ -43,6 +43,8 @@ paths:
                 type: number
               ph_max:
                 type: number
+        404:
+          description: "Device not found."
 
   /emb/{device_id}/log/:
     post:
@@ -54,7 +56,7 @@ paths:
         - in: path
           name: device_id
           required: true
-          type: string
+          type: integer
           minimum: 1
           description: "Device ID"
         - in: body
@@ -77,7 +79,9 @@ paths:
                 type: number
       responses:
         201:
-          description: "Successful sensor value log"
+          description: "Successful sensor value log. Returns ID of new data object."
+        404:
+          description: "Device not found."
 
   /webapp/{device_id}/history/:
     get:
@@ -89,7 +93,7 @@ paths:
         - in: path
           name: device_id
           required: true
-          type: string
+          type: integer
           minimum: 1
           description: "Device ID"
         - in: query
@@ -106,7 +110,7 @@ paths:
             items:
               properties:
                 device_id:
-                  type: string
+                  type: integer
                 date:
                   type: string
                 species:
@@ -119,6 +123,10 @@ paths:
                   type: number
                 temp:
                   type: number
+        204:
+          description: "Device has no history."
+        404:
+          description: "Device not found."
 
   /webapp/{device_id}/plant:
     get:
@@ -130,7 +138,7 @@ paths:
         - in: path
           name: device_id
           required: true
-          type: string
+          type: integer
           minimum: 1
           description: "Device ID"
       responses:
@@ -138,6 +146,10 @@ paths:
           description: "Successful plant type fetch"
           schema:
             type: string
+        204:
+          description: "Device has no plant set"
+        404:
+          description: "Device not found."
   /webapp/{device_id}/plant/change:
     post:
       operationId: "server.webapp.change_plant"
@@ -150,7 +162,7 @@ paths:
         - in: path
           name: device_id
           required: true
-          type: string
+          type: integer
           minimum: 1
           description: "Device ID"
         - in: body
@@ -175,20 +187,49 @@ paths:
         - in: path
           name: user_id
           required: true
-          type: string
+          type: integer
           minimum: 1
           description: "User ID"
       responses:
         200:
-          description: "Successful device list fetch"
+          description: "Successful device list fetch."
           schema:
             type: array
             items:
               properties:
                 device_id:
-                  type: string
+                  type: integer
                 plant_type:
                   type: string
-#  # /webapp/{user_id}/add:
-#  #   post:
-#  #     ...
+                label:
+                  type: string
+        204:
+          description: "User has no devices."
+        404:
+          description: "User not found."
+  /webapp/{user_id}/add:
+    put:
+      operationId: "server.webapp.add_device"
+      tags:
+        - webapp
+      summary: "Add a new device for a user"
+      parameters:
+        - in: path
+          name: user_id
+          required: true
+          type: integer
+          minimum: 1
+          description: "User ID"
+        - in: body
+          name: values
+          required: false
+          schema:
+            type: object
+            properties:
+              label:
+                type: string
+      responses:
+        201:
+          description: "Successful device add. Returns the new device ID."
+          schema:
+            type: integer
