@@ -1,9 +1,9 @@
 import datetime
 import random
-from typing import List
+from typing import List, Tuple
 
 import sqlalchemy
-from sqlalchemy import Column, Integer, String, Date, Float, DateTime
+from sqlalchemy import Column, Integer, String, Float, DateTime
 from sqlalchemy import ForeignKey
 from sqlalchemy import create_engine, MetaData, Table
 from sqlalchemy.engine import Engine
@@ -24,7 +24,7 @@ class Users(Base):
     lastname = Column(String(30))
     email = Column(String(50))
     password = Column(String(255))
-    date = Column(DateTime)
+    date = Column(DateTime, server_default=sqlalchemy.func.now())
 
     devices = relationship('Devices', back_populates='user')
 
@@ -39,13 +39,14 @@ class Devices(Base):
     __tablename__ = 'devices'
     id = Column(Integer, primary_key=True, autoincrement=True)
     ownerID = Column(Integer, ForeignKey('users.id'), nullable=False)  # foreign key -> users
+    label = Column(String(255))
     # idealPlantSpecies = Column(String)  # changed to idealPlantID
     idealPlantID = Column(Integer, ForeignKey('plants.id'))
     idealPH = Column(Float)
     idealTemp = Column(Float)
     idealLight = Column(Float)  # go to str
     idealMoisture = Column(Float)  # go to str
-    date = Column(DateTime)
+    date = Column(DateTime, server_default=sqlalchemy.func.now())
 
     user = relationship('Users', back_populates='devices')
     plant = relationship('Plants')
@@ -68,7 +69,7 @@ class Data(Base):
     temp = Column(Float)
     light = Column(Float)
     moisture = Column(Float)
-    date = Column(DateTime)
+    date = Column(DateTime, server_default=sqlalchemy.func.now())
 
     plant = relationship('Plants')
 
@@ -163,11 +164,12 @@ def create_test_data():
         ("Brad", "Pitt", "bpitt@test.com", datetime.datetime.utcnow()),
         ("Oprah", "Winfrey", "owinfrey@test.com", datetime.datetime.utcnow()),
         ("Zach", "Efron", "zefron@test.com", datetime.datetime.utcnow()),
-    ]
+    ]  # type: List[Tuple]
 
     user_rows = []
     for user in users:
-        user_row = Users(firstname=user[0], lastname=user[1], email=user[2], date=user[3])
+        # user_row = Users(firstname=user[0], lastname=user[1], email=user[2], date=user[3])  # don't need this if timestamps autopopulate
+        user_row = Users(firstname=user[0], lastname=user[1], email=user[2])
         user_rows.append(user_row)
         print("*******User Row Added*******")
     sesh.add_all(user_rows)
@@ -181,7 +183,7 @@ def create_test_data():
         (114322, "sagebrush mariposa lily"),
         (141504, "common sunflower"),
         (160569, "Barbary fig"),
-    ]
+    ]  # type: List[Tuple]
     plant_rows = []
     for plant in plants:
         plant_row = Plants(id=plant[0], plantName=plant[1])
@@ -207,7 +209,7 @@ def create_test_data():
             # these should both be maps of str -> float, i don't want to deal with it right now.
             idealMoisture=random.randrange(300, 999),
             # these should both be maps of str -> float, i don't want to deal with it right now.
-            date=datetime.datetime.utcnow()
+            # date=datetime.datetime.utcnow()  # don't need this if timestamps autopopulate
         )
         device_rows.append(device_row)
         print("*******Device Row Added*******")
