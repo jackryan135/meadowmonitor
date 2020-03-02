@@ -8,7 +8,7 @@ services:
       - frontend
       - backend
     ports:
-      - "8080:80"
+      - 8080:80
     volumes:
       - ./public_html/:/var/www/html/
       - ./private_files/:/var/private/
@@ -19,7 +19,7 @@ services:
     networks:
       - backend
     ports:
-      - "3306:3306"
+      - 3200:3306
     environment:
       - MYSQL_ROOT_PASSWORD=root
   phpmyadmin:
@@ -36,6 +36,21 @@ services:
       MYSQL_ROOT_PASSWORD: root
       PMA_ARBITRARY: 1
       PMA_HOST: mysql
+  python:
+    build: './python/'
+    depends_on:
+      - mysql
+    networks:
+      - backend
+    links:
+      - mysql:mysql
+    ports:
+      - 5001:5000
+    volumes:
+      - ./python/:/python/
+    environment:
+      PMA_HOST: mysql
+    restart: on-failure
 networks:
   frontend:
   backend:

@@ -1,0 +1,235 @@
+swagger: "2.0"
+info:
+  description: "This is the swagger file that goes with our Meadow Monitor server"
+  version: "1.0.0"
+  title: "Swagger REST Article"
+consumes:
+  - "application/json"
+produces:
+  - "application/json"
+
+basePath: "/api"
+
+# Paths supported by the server application
+paths:
+  /emb/{device_id}/desired/:
+    get:
+      operationId: "server.emb.desired"
+      tags:
+        - emb
+      summary: "Fetch the desired values for the embedded device's plant"
+      parameters:
+        - in: path
+          name: device_id
+          required: true
+          type: integer
+          minimum: 1
+          description: "Device ID"
+      responses:
+        200:
+          description: "Successful desired values json operation"
+          schema:
+            type: object
+            properties:
+#              plant_type:
+#                type: "string"
+              moisture:
+                type: string
+              light:
+                type: string
+              temperature_min:
+                type: number
+              ph_min:
+                type: number
+              ph_max:
+                type: number
+        404:
+          description: "Device not found."
+
+  /emb/{device_id}/log/:
+    post:
+      operationId: "server.emb.log"
+      tags:
+        - emb
+      summary: "Log current sensor values for the embedded device's plant"
+      parameters:
+        - in: path
+          name: device_id
+          required: true
+          type: integer
+          minimum: 1
+          description: "Device ID"
+        - in: body
+          name: values
+          required: true
+          schema:
+            type: object
+            properties:
+#              date:
+#                type: string
+#              species:
+#                type: string
+              light:
+                type: number
+              moisture:
+                type: number
+              ph:
+                type: number
+              temp:
+                type: number
+      responses:
+        201:
+          description: "Successful sensor value log. Returns ID of new data object."
+        404:
+          description: "Device not found."
+
+  /webapp/{device_id}/history/:
+    get:
+      operationId: "server.webapp.history"
+      tags:
+        - webapp
+      summary: "Fetch historical sensor data for an embedded device"
+      parameters:
+        - in: path
+          name: device_id
+          required: true
+          type: integer
+          minimum: 1
+          description: "Device ID"
+        - in: query
+          name: rows
+          required: false
+          type: integer
+          default: 5
+          description: "number of rows to fetch"
+      responses:
+        200:
+          description: "Successful historical data fetch"
+          schema:
+            type: array
+            items:
+              properties:
+                device_id:
+                  type: integer
+                date:
+                  type: string
+                species:
+                  type: string
+                light:
+                  type: number
+                moisture:
+                  type: number
+                ph:
+                  type: number
+                temp:
+                  type: number
+        204:
+          description: "Device has no history."
+        404:
+          description: "Device not found."
+
+  /webapp/{device_id}/plant:
+    get:
+      operationId: "server.webapp.plant"
+      tags:
+        - webapp
+      summary: "Fetch current plant for an embedded device"
+      parameters:
+        - in: path
+          name: device_id
+          required: true
+          type: integer
+          minimum: 1
+          description: "Device ID"
+      responses:
+        200:
+          description: "Successful plant type fetch"
+          schema:
+            type: string
+        204:
+          description: "Device has no plant set"
+        404:
+          description: "Device not found."
+  /webapp/{device_id}/plant/change:
+    post:
+      operationId: "server.webapp.change_plant"
+      tags:
+        - webapp
+      summary: "Change the plant species of the device"
+      consumes:
+        - "text/plain"
+      parameters:
+        - in: path
+          name: device_id
+          required: true
+          type: integer
+          minimum: 1
+          description: "Device ID"
+        - in: body
+          name: species
+          required: true
+          schema:
+            type: string
+          description: "The new plant species to change to"
+      responses:
+        200:
+          description: "Successful update"
+          schema:
+            type: string
+
+  /webapp/{user_id}:
+    get:
+      operationId: "server.webapp.list_devices"
+      tags:
+        - webapp
+      summary: "List a user's owned device IDs and plants"
+      parameters:
+        - in: path
+          name: user_id
+          required: true
+          type: integer
+          minimum: 1
+          description: "User ID"
+      responses:
+        200:
+          description: "Successful device list fetch."
+          schema:
+            type: array
+            items:
+              properties:
+                device_id:
+                  type: integer
+                plant_type:
+                  type: string
+                label:
+                  type: string
+        204:
+          description: "User has no devices."
+        404:
+          description: "User not found."
+  /webapp/{user_id}/add:
+    put:
+      operationId: "server.webapp.add_device"
+      tags:
+        - webapp
+      summary: "Add a new device for a user"
+      parameters:
+        - in: path
+          name: user_id
+          required: true
+          type: integer
+          minimum: 1
+          description: "User ID"
+        - in: body
+          name: values
+          required: false
+          schema:
+            type: object
+            properties:
+              label:
+                type: string
+      responses:
+        201:
+          description: "Successful device add. Returns the new device ID."
+          schema:
+            type: integer

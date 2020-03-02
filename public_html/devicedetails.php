@@ -3,6 +3,32 @@
 require "../../private/config.php";
 require "../../private/common.php";
 
+session_start();
+
+if(!isset($_SESSION["loggedin"]) || $_SESSION["loggedin"] == false){
+	header("location: login.php");
+	exit;
+}
+else{
+	try {
+		$connection = new PDO($dsn, $username, $password, $options);
+		$id = $_SESSION['id'];
+		$deviceID = $_GET['id'];
+
+		$sql = "SELECT ownerID FROM devices WHERE id = :id";
+		$statement = $connection->prepare($sql);
+		$statement->bindValue(':id', $deviceID);
+		$statement->execute();
+
+		$result = $statement->fetch();
+		if($id != $result["ownerID"]){
+			header("location: userdevices.php");
+			exit;
+		}
+	} catch (PDOException $error) {
+		echo $sql . "<br>" . $error->getMessage();
+	}
+}
 
 if (isset($_POST['submit'])) {
 	try {
@@ -44,7 +70,7 @@ if (isset($_GET['id'])) {
 
 		$user = $statement->fetch(PDO::FETCH_ASSOC);
 
-		$devicesql = "SELECT * FROM devices WHERE id = :id";
+		$devicesql = "SELECT plants.plantName, devices.id, devices.idealTemp, devices.idealPH, devices.idealMoisture, devices.idealLight FROM devices INNER JOIN plants ON devices.idealPlantID = plants.ID WHERE devices.id = :id";
 		$devicestatement = $connection->prepare($devicesql);
 		$devicestatement->bindValue(':id', $id);
 		$devicestatement->execute();
@@ -93,7 +119,7 @@ if (isset($_GET['id'])) {
 			<div class="card bg-primary text-white text-center p-1">
 				<h5 style="padding-top: 16px;">Tempurature</h5>
 				<div id="tempDiv">
-					<p><strong><?php echo $user['temp']; ?></strong></p>
+					<p><strong><?php echo $user['temp']; ?> ºF</strong></p>
 				</div>
 			</div>
 			<div class="card bg-success text-white text-center p-1">
@@ -119,13 +145,13 @@ if (isset($_GET['id'])) {
 
 	<div class="px-xl-5" style="margin: 20px;">
 		<h5>Historical Data:</h5>
-		<p><strong>Tempurature</strong></p>
+		<p class="graph-label"><strong>Tempurature</strong></p>
 		<div><canvas class="chart-container" id="tempchart-container"></canvas></div>
-		<p><strong>pH</strong></p>
+		<p class="graph-label"><strong>pH</strong></p>
 		<div><canvas class="chart-container" id="phchart-container"></canvas></div>
-		<p><strong>Light Level</strong></p>
+		<p class="graph-label"><strong>Light Level</strong></p>
 		<div><canvas class="chart-container" id="lightchart-container"></canvas></div>
-		<p><strong>Moisture Level</strong></p>
+		<p class="graph-label"><strong>Moisture Level</strong></p>
 		<div><canvas class="chart-container" id="moistchart-container"></canvas></div>
 	</div>
 
@@ -289,12 +315,12 @@ if (isset($_GET['id'])) {
 					Desired Moisture
 				</label>
 				<label for="temp" class="col">
-					Desired Tempurature
+					Desired Tempurature (ºF)
 				</label>
 			</div>
 			<div class="form-row">
 				<div class="col">
-					<input type="text" class="form-control" name="idealPlantSpecies" id="idealPlantSpecies" value="<?php echo $device['idealPlantSpecies'] ?>">
+					<input type="text" class="form-control" name="idealPlantSpecies" id="idealPlantSpecies" value="<?php echo $device['plantName'] ?>">
 					</input>
 				</div>
 				<div class="col">
