@@ -16,9 +16,9 @@ app.add_api('server/swagger.yml')
 
 
 if __name__ == '__main__':
-    if conf.trefle_token is None or conf.trefle_token == '':
-        # TODO: probably move to conf.py?
-        conf.trefle_token = os.environ['COEN315_TREFLE_TOKEN']
+    # if conf.trefle_token is None or conf.trefle_token == '':
+    #     # TODO: probably move to conf.py?
+    #     conf.trefle_token = os.environ['COEN315_TREFLE_TOKEN']
     tables.create_meadowmonitor_database(user=conf.user, password=conf.password, host=conf.host, port=conf.port,
                                          database=conf.database)
     if conf.populate_database is True:
