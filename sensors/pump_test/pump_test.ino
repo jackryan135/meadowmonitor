@@ -1,6 +1,6 @@
-#define WATER_EN 13
-#define WATER_PIN1 12
-#define WATER_PIN2 14
+#define WATER_EN 35
+#define WATER_PIN1 32
+#define WATER_PIN2 33
 
 #define WATER_TIME 2000
 

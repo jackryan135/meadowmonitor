@@ -1,23 +1,26 @@
 #include <Arduino.h>
 #include "Adafruit_seesaw.h"
 
+// timing
 #define K 10000 // Check sensors every 10 seconds
 #define N 3600000 // Update ESP every 1hr
 #define M 600000 // Update server every 10 min
+#define WATER_TIME 2000
 
 // TODO: change below to real defaults
 #define TEMP 50 // Default temperature
 #define MOISTURE 400 // Default moisture
 #define LIGHT 0 // Default light
 
-// TODO: change below to real pins
-#define HEAT_PIN 0
+// inputs
+#define MOISTURE_PIN 36
+#define LIGHT_PIN 0
 
-#define WATER_EN 13
-#define WATER_PIN1 12
-#define WATER_PIN2 14
-
-#define WATER_TIME 2000
+// outputs
+#define HEAT_PIN 34
+#define WATER_EN 35
+#define WATER_PIN1 32
+#define WATER_PIN2 33
 
 uint16_t readMoisture(int n);
 float readTemp(int n);
@@ -39,6 +42,10 @@ void setup() {
   // put your setup code here, to run once:
   Serial.begin(115200);
 
+  pinMode(MOISTURE_PIN, INPUT);
+  pinMode(LIGHT_PIN, INPUT);
+
+  pinMode(HEAT_PIN, OUTPUT);
   pinMode(WATER_EN, OUTPUT);
   pinMode(WATER_PIN1, OUTPUT);
   pinMode(WATER_PIN2, OUTPUT);
@@ -67,7 +74,7 @@ void loop() {
   if (current_time - k_time >= K) {
     // Read sensors, use actuators as necessary
     float temp = readTemp(20);
-    uint16_t moisture = readMoisture(20);
+    int moisture = readMoisture(20);
 
     if (temp < user_prefs.temperature)
       digitalWrite(HEAT_PIN, HIGH);
@@ -121,10 +128,10 @@ float readTemp(int n) {
   return (tempSum / (float) n);
 }
 
-uint16_t readMoisture(int n) {
-  uint16_t moistSum;
+int readMoisture(int n) {
+  int moistSum;
   for (int i = 0; i < n; i++) {
-    uint16_t moist = ss.touchRead(0);
+    int moist = analogRead(MOISTURE_PIN);
     if (moist == 0) {
       i--;
     } else {
@@ -132,5 +139,5 @@ uint16_t readMoisture(int n) {
     }
   }
 
-  return (moistSum / (uint16_t) n);
+  return (moistSum / n);
 }
