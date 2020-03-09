@@ -1,4 +1,4 @@
-#define HEAT_PIN 27
+#define HEAT_PIN 34
 
 void setup() {
   // put your setup code here, to run once:
