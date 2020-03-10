@@ -31,8 +31,8 @@ paths:
           schema:
             type: object
             properties:
-#              plant_type:
-#                type: "string"
+              #              plant_type:
+              #                type: "string"
               moisture:
                 type: string
               light:
@@ -65,10 +65,10 @@ paths:
           schema:
             type: object
             properties:
-#              date:
-#                type: string
-#              species:
-#                type: string
+              #              date:
+              #                type: string
+              #              species:
+              #                type: string
               light:
                 type: number
               moisture:
@@ -207,6 +207,7 @@ paths:
           description: "User has no devices."
         404:
           description: "User not found."
+
   /webapp/{user_id}/add:
     put:
       operationId: "server.webapp.add_device"
@@ -233,3 +234,33 @@ paths:
           description: "Successful device add. Returns the new device ID."
           schema:
             type: integer
+
+  /webapp/search:
+    get:
+      operationId: "server.webapp.search"
+      tags:
+        - webapp
+      summary: "Search plants database for a partial term"
+      parameters:
+        - in: query
+          name: search_term
+          type: string
+          required: true
+          description: "Partial search term"
+      responses:
+        200:
+          description: "Found plants"
+          schema:
+            type: array
+            items:
+              properties:
+                id:
+                  type: integer
+                scientific_name:
+                  type: string
+                common_name:
+                  type: string
+                complete_data:
+                  type: boolean
+        204:
+          description: "No plants found"

@@ -28,20 +28,20 @@ def get_desired(species_id: int) -> Dict[str, Any]:
     return desired
 
 
-# TODO: remove in favor of the above method
-def search_desired(plant_name: str) -> Dict[str, Any]:
-    response = search_plants(plant_name)
-    response.raise_for_status()
-    complete = response.json()[0]
-    pprint.pprint(complete)
-    desired = {
-        'moisture': complete['moisture_use'],
-        'light': complete['shade_tolerance'],
-        'temperature_min': complete['temperature_minimum']['deg_f'],
-        'ph_min': complete['ph_minimum'],
-        'ph_max': complete['ph_maximum'],
-    }
-    return desired
+# # TODO: remove in favor of the above method
+# def search_desired(plant_name: str) -> Dict[str, Any]:
+#     response = search_plants(plant_name)
+#     response.raise_for_status()
+#     complete = response.json()[0]
+#     pprint.pprint(complete)
+#     desired = {
+#         'moisture': complete['moisture_use'],
+#         'light': complete['shade_tolerance'],
+#         'temperature_min': complete['temperature_minimum']['deg_f'],
+#         'ph_min': complete['ph_minimum'],
+#         'ph_max': complete['ph_maximum'],
+#     }
+#     return desired
 
 
 # def search_species(search_term: str) -> requests.Response:
@@ -58,18 +58,34 @@ def search_plants(search_term: str, page: int = None) -> requests.Response:
     return requests.get(url=TREFLE_API + 'plants', params={'token': conf.trefle_token, 'q': search_term, 'page': page})
 
 
-def search_plants_complete(search_term: str) -> List[Dict]:
+# def search_plants_complete(search_term: str) -> List[Dict]:
+#     # Get all species matching a partial search term
+#     # Ex: 'straw' will return both 'European bedstraw' and 'Appalachian barren strawberry'
+#     ret = []
+#     page = 1
+#     while page < 10 and len(ret) < 5:
+#         print(page)
+#         complete = requests.get(url=TREFLE_API + 'plants',
+#                                 params={'token': conf.trefle_token, 'q': search_term, 'page': page}).json()
+#         if len(complete) == 0:
+#             break
+#         ret += [plant for plant in complete if plant['complete_data'] is True]
+#         page += 1
+#     return ret
+
+
+def search_species_complete(search_term: str) -> List[Dict]:
     # Get all species matching a partial search term
     # Ex: 'straw' will return both 'European bedstraw' and 'Appalachian barren strawberry'
     ret = []
     page = 1
     while page < 10 and len(ret) < 5:
         print(page)
-        complete = requests.get(url=TREFLE_API + 'plants',
+        complete = requests.get(url=TREFLE_API + 'species',
                                 params={'token': conf.trefle_token, 'q': search_term, 'page': page}).json()
         if len(complete) == 0:
             break
-        ret += [plant for plant in complete if plant['complete_data'] is True]
+        ret += [species for species in complete if species['complete_data'] is True]
         page += 1
     return ret
 

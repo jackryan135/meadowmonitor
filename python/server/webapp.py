@@ -2,6 +2,7 @@ from typing import Dict, Any
 
 from server import conf
 from server.tables import new_session, Devices, Data, Users
+from server.trefle import search_species_complete
 
 
 def history(device_id: int, rows: int = 5):
@@ -68,3 +69,14 @@ def add_device(user_id: int, values: Dict[str, Any]):
     session.add(device)
     session.commit()
     return device.id, 201
+
+
+def search(search_term: str):
+    search_results = search_species_complete(search_term)
+    plant_results = [{
+        'id': result['id'],
+        'scientific_name': result['scientific_name'],
+        'common_name': result['common_name'],
+        'complete_data': result['complete_data'],
+    } for result in search_results]
+    return plant_results
