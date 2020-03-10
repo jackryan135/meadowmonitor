@@ -9,7 +9,7 @@ if (isset($_SESSION['id'])) {
 		$connection = new PDO($dsn, $username, $password, $options);
 		$id = $_SESSION['id'];
 
-		$sql = "SELECT devices.id, plants.plantName, devices.date FROM devices INNER JOIN plants ON devices.idealPlantID = plants.ID WHERE ownerID = :id";
+		$sql = "SELECT devices.id, devices.label, plants.plantName, devices.date FROM devices INNER JOIN plants ON devices.idealPlantID = plants.ID WHERE ownerID = :id";
 		$statement = $connection->prepare($sql);
 		$statement->bindValue(':id', $id);
 		$statement->execute();
@@ -31,7 +31,7 @@ if (isset($_SESSION['id'])) {
 	<table class="table table-striped table-hover">
 		<thead class="thead-dark">
 			<tr>
-				<th>#</th>
+				<th>Name</th>
 				<th>Plant Species</th>
 				<th>Date</th>
 				<th>Details</th>
@@ -40,7 +40,7 @@ if (isset($_SESSION['id'])) {
 		<tbody>
 			<?php foreach ($device as $row) : ?>
 				<tr>
-					<td><?php echo escape($row["id"]); ?></td>
+					<td><?php echo escape($row["label"]); ?></td>
 					<td><?php echo escape($row["plantName"]); ?></td>
 					<td><?php echo escape($row["date"]); ?> </td>
 					<td><a type="button" class="btn btn-success" href="devicedetails.php?id=<?php echo escape($row["id"]); ?>">Details</a></td>
@@ -48,6 +48,5 @@ if (isset($_SESSION['id'])) {
 			<?php endforeach; ?>
 		</tbody>
 	</table>
-
-	<a href="viewuserlist.php">Back to user list</a>
 </div>
+<?php require "templates/footer.php"; ?>

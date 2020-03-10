@@ -108,7 +108,6 @@ if (isset($_GET['id'])) {
 
 		function my_function() {
 			$("#tempDiv").load("/devicedetails.php?id=" + id + " #tempDiv");
-			$("#phDiv").load("/devicedetails.php?id=" + id + " #phDiv");
 			$("#lightDiv").load("/devicedetails.php?id=" + id + " #lightDiv");
 			$("#moistureDiv").load("/devicedetails.php?id=" + id + " #moistureDiv");
 		}
@@ -116,16 +115,10 @@ if (isset($_GET['id'])) {
 	<div class="container px-xl-5" style="padding:20px; margin-top:10px;">
 		<h5>Current Status:</h5>
 		<div class="card-deck px-xl-5" style="margin-top:15px;">
-			<div class="card bg-primary text-white text-center p-1">
+			<div class="card bg-success text-white text-center p-1">
 				<h5 style="padding-top: 16px;">Tempurature</h5>
 				<div id="tempDiv">
 					<p><strong><?php echo $user['temp']; ?> ºF</strong></p>
-				</div>
-			</div>
-			<div class="card bg-success text-white text-center p-1">
-				<h5 style="padding-top: 16px;">pH</h5>
-				<div id="phDiv">
-					<p><strong><?php echo $user['ph']; ?></strong></p>
 				</div>
 			</div>
 			<div class="card bg-warning text-white text-center p-1">
@@ -147,8 +140,6 @@ if (isset($_GET['id'])) {
 		<h5>Historical Data:</h5>
 		<p class="graph-label"><strong>Tempurature</strong></p>
 		<div><canvas class="chart-container" id="tempchart-container"></canvas></div>
-		<p class="graph-label"><strong>pH</strong></p>
-		<div><canvas class="chart-container" id="phchart-container"></canvas></div>
 		<p class="graph-label"><strong>Light Level</strong></p>
 		<div><canvas class="chart-container" id="lightchart-container"></canvas></div>
 		<p class="graph-label"><strong>Moisture Level</strong></p>
@@ -163,9 +154,6 @@ if (isset($_GET['id'])) {
 			dates = data.map(function(e) {
 				return e.date;
 			}),
-			phData = data.map(function(e) {
-				return e.ph;
-			}),
 			lightData = data.map(function(e) {
 				return e.light;
 			}),
@@ -176,36 +164,16 @@ if (isset($_GET['id'])) {
 				return e.moisture;
 			});
 
-		var ctxph = document.getElementById('phchart-container').getContext("2d");
 		var ctxtemp = document.getElementById('tempchart-container').getContext("2d");
 		var ctxlight = document.getElementById('lightchart-container').getContext("2d");
 		var ctxmoist = document.getElementById('moistchart-container').getContext("2d");
 
-		var phchart;
 		var lightchart;
 		var moistchart;
 		var tempchart;
 
 		window.onload = function() {
 			Chart.defaults.global.legend.display = false;
-			phchart = new Chart(ctxph, {
-				title: "pH",
-				type: 'line',
-				data: {
-					labels: labels,
-					datasets: [{
-						label: "pH",
-						data: phData,
-						borderWidth: 2,
-						backgroundColor: "rgba(6, 200, 6, 0.1)",
-						borderColor: "rgba(6, 200, 6, 1)",
-						pointBackgroundColor: "rgba(225, 225, 225, 1)",
-						pointBorderColor: "rgba(6, 200, 6, 1)",
-						pointHoverBackgroundColor: "rgba(6, 200, 6, 1)",
-						pointHoverBorderColor: "#fff"
-					}]
-				},
-			});
 
 			tempchart = new Chart(ctxtemp, {
 				type: 'line',
@@ -215,11 +183,11 @@ if (isset($_GET['id'])) {
 						label: "Tempurature",
 						data: tempData,
 						borderWidth: 2,
-						backgroundColor: "rgba(6, 6, 160, 0.1)",
-						borderColor: "rgba(6, 6, 160, 1)",
+						backgroundColor: "rgba(6, 160, 6, 0.1)",
+						borderColor: "rgba(6, 160, 6, 1)",
 						pointBackgroundColor: "rgba(225, 225, 225, 1)",
-						pointBorderColor: "rgba(6, 6, 160, 1)",
-						pointHoverBackgroundColor: "rgba(6, 6, 160, 1)",
+						pointBorderColor: "rgba(6, 160, 6, 1)",
+						pointHoverBackgroundColor: "rgba(6, 160, 6, 1)",
 						pointHoverBorderColor: "#fff"
 					}]
 				},
@@ -261,7 +229,6 @@ if (isset($_GET['id'])) {
 				},
 			});
 
-			phchart.render();
 			tempchart.render();
 			lightchart.render();
 			moistchart.render();
@@ -276,14 +243,12 @@ if (isset($_GET['id'])) {
 				if (data.date != dates[labels.length - 1]) {
 					dates.push(data.date);
 					labels.push(data.date.substring(5, 7) + "/" + data.date.substring(8, 10) + " - " + data.date.substring(11, 16));
-					phData.push(data.ph);
 					lightData.push(data.light);
 					tempData.push(data.temp);
 					moistureData.push(data.moisture);
 				}
 			}, "json");
 
-			phchart.update();
 			tempchart.update();
 			lightchart.update();
 			moistchart.update();

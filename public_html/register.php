@@ -104,7 +104,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <link href="css/style.css" rel="stylesheet">
 </head>
 
-<body>
+<body class=home>
 <nav class="navbar navbar-expand-lg navbar-light fixed-bottom" style="background-color: #72f29d;">
         <div class="container">
             <a class="navbar-brand" href="index.html" style="font-family: 'Amatic SC', cursive; font-size:30px; font-weight:bold;"><img class="navbar-icon" src="flower.png" width="40" height="30" alt="flower icon">Meadow Monitor</a>
@@ -162,6 +162,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 			<p>Already have an account? <a href="login.php">Login here</a>.</p>
 		</form>
 	</div>
+	<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script> 
 </body>
 
 </html>
