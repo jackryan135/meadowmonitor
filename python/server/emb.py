@@ -11,7 +11,15 @@ def desired(device_id: int):
     device = session.query(Devices).filter_by(id=device_id).one_or_none()  # type: Devices
     if device is None:
         return 'Device not found', 404
-    desired_values = trefle.get_desired(device.idealPlantID)
+    # desired_values = trefle.get_desired(device.idealPlantID)
+    desired_values = {
+        'moisture': device.idealMoisture,
+        'light': device.idealLight,
+        'temperature_min': device.idealTemp,
+        # 'ph_min': growth['ph_minimum'],
+        # 'ph_max': growth['ph_maximum'],
+        'ph': device.idealPH,
+    }
     return desired_values
 
 
