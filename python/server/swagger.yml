@@ -31,8 +31,6 @@ paths:
           schema:
             type: object
             properties:
-              #              plant_type:
-              #                type: "string"
               moisture:
                 type: string
               light:
