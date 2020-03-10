@@ -1,8 +1,9 @@
+import pprint
 from typing import Dict, Any
 
 from server import conf
-from server.tables import new_session, Devices, Data, Users
-from server.trefle import search_species_complete
+from server.tables import new_session, Devices, Data, Users, Plants
+from server.trefle import search_species_complete, get_desired, get_species
 
 
 def history(device_id: int, rows: int = 5):
@@ -21,7 +22,7 @@ def history(device_id: int, rows: int = 5):
     return output
 
 
-def plant(device_id: int):
+def get_plant(device_id: int):
     session = new_session(conf.user, conf.password, conf.host, conf.port, conf.database)
     device = session.query(Devices).filter_by(id=device_id).one_or_none()  # type: Devices
     if device is None:
@@ -31,15 +32,58 @@ def plant(device_id: int):
     return device.plant.plantName
 
 
-def change_plant(device_id: int, species: bytes):
-    # TODO: update for table changes
-    # TODO: create a 'update device plant' method, probably in tables
-    # TODO: obv needs to throw a 404 if the device doesn't exist, etc
-    species = species.decode('utf-8')  # unfortunate that this is required with plaintext parameters :(
-    print(device_id, species)
+def change_plant(device_id: int, species_id: int):
+    # # TODO: update for table changes
+    # # TODO: create a 'update device plant' method, probably in tables
+    # # TODO: obv needs to throw a 404 if the device doesn't exist, etc
+    # species = species.decode('utf-8')  # unfortunate that this is required with plaintext parameters :(
+    # print(device_id, species)
+    #
+    # # return "OK"
+    # return None, 501
+    session = new_session(conf.user, conf.password, conf.host, conf.port, conf.database)
+    device = session.query(Devices).filter_by(id=device_id).one_or_none()  # type: Devices
 
-    # return "OK"
-    return None, 501
+    plant = session.query(Plants).filter_by(id=species_id).one_or_none()
+    if plant is None:
+        species_data = get_species(species_id)
+        if species_data['complete_data'] is not True:
+            return "No plant data found", 404
+        plant = Plants(id=species_id, plantName=species_data['common_name'])
+        session.add(plant)
+        session.commit()
+
+    desired = get_desired(species_id)
+    pprint.pprint(desired)
+
+    # update species and not other things
+    device.idealPlantID = species_id
+    device.idealMoisture = desired['moisture'].upper()
+    device.idealLight = desired['light'].upper()
+    device.idealTemp = desired['temperature_min']
+    # this isn't really used since we couldn't find a sensor for it
+    device.idealPH = (desired['ph_max'] + desired['ph_min']) / 2
+
+    session.commit()
+    return "OK", 200
+
+
+def override_values(device_id: int, values: Dict[str, Any]):
+    session = new_session(conf.user, conf.password, conf.host, conf.port, conf.database)
+    device = session.query(Devices).filter_by(id=device_id).one_or_none()  # type: Devices
+    if device is None:
+        return "No matching device", 404
+    if 'temperature' in values:
+        # override ideal temperature
+        device.idealTemp = values['temperature']
+    if 'moisture' in values:
+        # override ideal moisture
+        device.idealMoisture = values['moisture'].upper()
+    session.commit()
+
+    if 'temperature' not in values and 'moisture' not in values:
+        return "Empty request body", 204
+    return "OK", 200
 
 
 def list_devices(user_id: int):
