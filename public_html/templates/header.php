@@ -18,17 +18,7 @@
 <body>
   <nav class="navbar navbar-expand-lg navbar-light" style="background-color: #72f29d;">
     <a class="navbar-brand" href="userdevices.php" style="font-family: 'Amatic SC', cursive; font-size:30px; font-weight:bold;"><img class="navbar-icon" src="flower.png" width="40" height="30" alt="flower icon">Meadow Monitor</a>
-    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-    <div class="collapse navbar-collapse" id="navbarNavDropdown">
-      <ul class="navbar-nav">
-        <li class="nav-item">
-          <a class="nav-link" href="userdevices.php">Devices</a>
-        </li>
-      </ul>
-    </div>
-    <a class="btn btn-dark" style="margin-right: 20px;" href="logout.php">Logout</a>
+    <a class="btn btn-dark" style="margin-right: 20px; margin-left: auto;" href="logout.php">Logout</a>
   </nav>
 </body>
 
