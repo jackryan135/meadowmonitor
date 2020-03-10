@@ -70,7 +70,7 @@ if (isset($_GET['id'])) {
 
 		$user = $statement->fetch(PDO::FETCH_ASSOC);
 
-		$devicesql = "SELECT plants.plantName, devices.id, devices.idealTemp, devices.idealPH, devices.idealMoisture, devices.idealLight FROM devices INNER JOIN plants ON devices.idealPlantID = plants.ID WHERE devices.id = :id";
+		$devicesql = "SELECT plants.plantName, devices.id, devices.label, devices.idealTemp, devices.idealPH, devices.idealMoisture, devices.idealLight FROM devices INNER JOIN plants ON devices.idealPlantID = plants.ID WHERE devices.id = :id";
 		$devicestatement = $connection->prepare($devicesql);
 		$devicestatement->bindValue(':id', $id);
 		$devicestatement->execute();
@@ -99,7 +99,7 @@ if (isset($_GET['id'])) {
 		Device successfully updated.
 	<?php endif; ?>
 
-	<h2>Plant Details - Device ID: <?php echo $user['deviceID']; ?></h2>
+	<h2>Plant Details - <?php echo $device['label']; ?></h2>
 
 	<script>
 		var id = <?php echo $id ?>;
