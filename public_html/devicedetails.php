@@ -301,7 +301,7 @@ if (isset($_GET['id'])) {
 		</form>
 	</div>
 
-	<a href="index.php">Back to home</a>
+	<a href="userdevices.php">Back to home</a>
 </div>
 
 <?php require "templates/footer.php"; ?>
