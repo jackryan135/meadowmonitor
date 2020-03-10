@@ -39,9 +39,11 @@ paths:
                 type: string
               temperature_min:
                 type: number
-              ph_min:
-                type: number
-              ph_max:
+#              ph_min:
+#                type: number
+#              ph_max:
+#                type: number
+              ph:
                 type: number
         404:
           description: "Device not found."
