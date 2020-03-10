@@ -102,7 +102,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
         body{ font: 14px sans-serif; }
     </style>
 </head>
-<body>
+<body class="home">
 <nav class="navbar navbar-expand-lg navbar-light fixed-bottom" style="background-color: #72f29d;">
         <div class="container">
             <a class="navbar-brand" href="index.html" style="font-family: 'Amatic SC', cursive; font-size:30px; font-weight:bold;"><img class="navbar-icon" src="flower.png" width="40" height="30" alt="flower icon">Meadow Monitor</a>
