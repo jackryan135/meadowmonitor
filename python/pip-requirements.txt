@@ -1,4 +1,5 @@
 connexion[swagger-ui]
+flask_cors
 Flask-SQLAlchemy
 ipython
 mysqlclient
