@@ -2,12 +2,13 @@ import os
 
 import connexion
 from flask import render_template
+from flask_cors import CORS
 
 from server import conf, tables
 
 app = connexion.App(__name__, specification_dir='./')
 app.add_api('server/swagger.yml')
-
+CORS(app.app)
 
 # TODO: make a new one, but http://localhost:5000/api/ui/ is a better homepage anyways.
 # @app.route('/')
@@ -24,6 +25,3 @@ if __name__ == '__main__':
     if conf.populate_database is True:
         tables.create_test_data()
     app.run(host='0.0.0.0', port=5000, debug=True, use_reloader=False)
-
-
-

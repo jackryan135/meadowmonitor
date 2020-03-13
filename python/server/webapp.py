@@ -1,6 +1,8 @@
 import pprint
 from typing import Dict, Any
 
+from flask import redirect
+
 from server import conf
 from server.tables import new_session, Devices, Data, Users, Plants
 from server.trefle import search_species_complete, get_desired, get_species
@@ -46,7 +48,7 @@ def change_plant(device_id: int, species_id: int):
 
     plant = session.query(Plants).filter_by(id=species_id).one_or_none()
     if plant is None:
-        species_data = get_species(species_id)
+        species_data = get_species(species_id).json()
         if species_data['complete_data'] is not True:
             return "No plant data found", 404
         plant = Plants(id=species_id, plantName=species_data['common_name'])
@@ -65,26 +67,28 @@ def change_plant(device_id: int, species_id: int):
     device.idealPH = (desired['ph_max'] + desired['ph_min']) / 2
 
     session.commit()
-    return "OK", 200
+    # return "OK", 200
+    return redirect(f"http://www.meadowmonitor.com:8080/devicedetails.php?id={device_id}")
 
 
-def override_values(device_id: int, values: Dict[str, Any]):
+# def override_values(device_id: int, values: Dict[str, Any]):
+def override_values(device_id: int, temperature: float, moisture: str):
     session = new_session(conf.user, conf.password, conf.host, conf.port, conf.database)
     device = session.query(Devices).filter_by(id=device_id).one_or_none()  # type: Devices
     if device is None:
         return "No matching device", 404
-    if 'temperature' in values:
+    if temperature is not None:
         # override ideal temperature
-        device.idealTemp = values['temperature']
-    if 'moisture' in values:
+        device.idealTemp = temperature
+    if moisture is not None:
         # override ideal moisture
-        device.idealMoisture = values['moisture'].upper()
+        device.idealMoisture = moisture.upper()
     session.commit()
 
-    if 'temperature' not in values and 'moisture' not in values:
-        return "Empty request body", 204
-    return "OK", 200
-
+    # if 'temperature' not in values and 'moisture' not in values:
+    #     return "Empty request body", 204
+    # return "OK", 200
+    return redirect(f"http://www.meadowmonitor.com:8080/devicedetails.php?id={device_id}")
 
 def list_devices(user_id: int):
     session = new_session(conf.user, conf.password, conf.host, conf.port, conf.database)
@@ -104,12 +108,21 @@ def list_devices(user_id: int):
     return devices
 
 
-def add_device(user_id: int, values: Dict[str, Any]):
+# def add_device(user_id: int, values: Dict[str, Any]):
+def add_device(user_id: int, label: str = None):
     session = new_session(conf.user, conf.password, conf.host, conf.port, conf.database)
-    if 'label' in values:
-        device = Devices(ownerID=user_id, label=values['label'])
+    # if 'label' in values:
+    #     device = Devices(ownerID=user_id, label=values['label'])
+    # else:
+    #     device = Devices(ownerID=user_id)
+    device = Devices(ownerID=user_id)
+    if label is None or label == "":
+        device.label = 'Untitled device'
     else:
-        device = Devices(ownerID=user_id)
+        device.label = label
+    device.idealTemp = 30
+    device.idealLight = 'INTOLERANT'
+    device.idealMoisture = 'MEDIUM'
     session.add(device)
     session.commit()
     return device.id, 201
