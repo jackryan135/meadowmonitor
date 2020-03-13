@@ -64,7 +64,7 @@ def change_plant(device_id: int, species_id: int):
     device.idealPlantID = species_id
     device.idealMoisture = desired['moisture'].upper()
     device.idealLight = desired['light'].upper()
-    device.idealTemp = desired['temperature_min']
+    device.idealTemp = (desired['temperature_min'] + desired['temperature_max'])/2
     # this isn't really used since we couldn't find a sensor for it
     device.idealPH = (desired['ph_max'] + desired['ph_min']) / 2
 
@@ -122,7 +122,7 @@ def add_device(user_id: int, label: str = None):
         device.label = 'Untitled device'
     else:
         device.label = label
-    device.idealTemp = 30
+    device.idealTemp = 70
     device.idealLight = 'INTOLERANT'
     device.idealMoisture = 'MEDIUM'
     device.idealPlantID = -1
