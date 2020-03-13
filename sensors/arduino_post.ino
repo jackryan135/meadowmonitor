@@ -2,7 +2,8 @@
 #include <WiFiClient.h>
 #include <WebServer.h>
 #include <HTTPClient.h>
- 
+#include <ArduinoJson.h>
+
 const char* ssid = "SCU-Student";
 const char* password =  "gosantaclara";
 
@@ -22,7 +23,8 @@ void setup() {
   }
  
   Serial.println("Connected to the WiFi network");
- 
+
+  
 }
 
 void getDesired(int devID){
@@ -40,22 +42,35 @@ void getDesired(int devID){
   Serial.println(getInfo);
   int sendRC = desiredHTTP.GET();
   if (sendRC > 0){
-    String response = desiredHTTP.getString();                       //Get the response to the request
- 
+    String response = desiredHTTP.getString(); //Get the response to the request
+    DynamicJsonDocument info(1024);
+    deserializeJson(info,response);
+
+    String temp_str = info["temperature_min"];
+    String moist_str = info["moisture"];
+    
     Serial.println(sendRC);   //Print return code
-    Serial.println(response);
+    
+
+    String infoParse[2];
+    infoParse[0] = temp_str;
+    infoParse[1] = moist_str;
+
+    Serial.println(infoParse[0]);
+    Serial.println(infoParse[1]);
 
   }else{
  
     Serial.print("Error on sending POST: ");
     Serial.println(sendRC);
- 
+  
    }
    desiredHTTP.end();
     
 }//fetch desired values
 
-void addDevice(String devName, int userID){
+/*
+void addDevice(int devID, int userID){
   HTTPClient deviceHTTP;
   String devNameURL = addURL + userID;
   devNameURL.concat("/add");
@@ -64,8 +79,8 @@ void addDevice(String devName, int userID){
   deviceHTTP.addHeader("Content-Type","application/json");
 
   String putInfo =  "{\"label\": \"";
-  /*String ds = String(devID);*/
-  putInfo.concat(devName);
+  String ds = String(devID);
+  putInfo.concat(ds);
   putInfo.concat("\"}");
   Serial.println(putInfo);
   int sendRC = deviceHTTP.PUT(putInfo);
@@ -82,11 +97,9 @@ void addDevice(String devName, int userID){
  
    }
    deviceHTTP.end();
-  
-
  
 }
-
+*/
 
 
 void sendInfo(int devID, int lightVal, int moistVal, int tempVal, int phVal){
@@ -172,6 +185,6 @@ void loop() {
  
  }
  
-  delay(10000);  //Send a request every 10 seconds
+  delay(5000);  //Send a request every 10 seconds
  
 }
