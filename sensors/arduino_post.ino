@@ -34,16 +34,11 @@ void getDesired(int devID){
   desiredHTTP.begin(desiredURL);
   desiredHTTP.addHeader("Content-Type","application/json");
 
-/*   int lightVal;
-  int moistVal;
-  int phVal = 0;
-  int tempVal; */
-
   String getInfo = String(devID);
   
   
   Serial.println(getInfo);
-  int sendRC = desiredHTTP.GET(getInfo);
+  int sendRC = desiredHTTP.GET();
   if (sendRC > 0){
     String response = desiredHTTP.getString();                       //Get the response to the request
  
