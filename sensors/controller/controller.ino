@@ -40,8 +40,6 @@ float readTemp(int n);
 void sendInfo(int devID, char *lightVal, char *moistVal, char *tempVal);
 String *getDesired(int devID);
 
-const char* ssid = "SCU-Student";
-const char* password =  "gosantaclara";
 const char *portal_ssid = "meadow-monitor-esp32";
 const char *portal_password = NULL;  // no password
 
@@ -148,88 +146,89 @@ void loop() {
 
   server.handleClient();
 
-  if (WiFi.status() != WL_CONNECTED)
-    return;
-  
-  unsigned long current_time = millis();
-  if (current_time - n_time >= N) {
-    // Update ESP from server
-    // => struct user_prefs
-    // Some values will be LOW-HIGH -> convert to analog values via sensor ranges
-    n_time = current_time;
-
-    String *infoParse = getDesired(user_prefs.dev_id);
-    user_prefs.temperature = infoParse[0].toFloat();
-
-    String moisture_str = infoParse[1];
-    if (moisture_str.equalsIgnoreCase("HIGH"))
-      user_prefs.moisture = MOIST_HIGH;
-    else if (moisture_str.equalsIgnoreCase("LOW"))
-      user_prefs.moisture = MOIST_LOW;
-    else user_prefs.moisture = MOIST_MED;
-  }
-
-  
-  if (current_time - m_time >= M) {
-    // Update server
-    m_time = current_time;
+  if (WiFi.status() == WL_CONNECTED) {
+    Serial.print("Connected to ");
+    Serial.println(WiFi.SSID());
     
-    // Read sensors, use actuators as necessary
-    float temp = (readTemp(20) * (9.0/5.0)) + 32.0;
-    int moisture = analogRead(MOISTURE_PIN);
-    int light = analogRead(LIGHT_PIN);
-
-
-    if (temp < user_prefs.temperature){
-      Serial.println("heat: HIGH");
-      digitalWrite(HEAT_PIN, HIGH);
+    unsigned long current_time = millis();
+    if (current_time - n_time >= N) {
+      // Update ESP from server
+      // => struct user_prefs
+      // Some values will be LOW-HIGH -> convert to analog values via sensor ranges
+      n_time = current_time;
+  
+      String *infoParse = getDesired(user_prefs.dev_id);
+      user_prefs.temperature = infoParse[0].toFloat();
+  
+      String moisture_str = infoParse[1];
+      if (moisture_str.equalsIgnoreCase("HIGH"))
+        user_prefs.moisture = MOIST_HIGH;
+      else if (moisture_str.equalsIgnoreCase("LOW"))
+        user_prefs.moisture = MOIST_LOW;
+      else user_prefs.moisture = MOIST_MED;
     }
-    else {
-      Serial.println("heat: LOW");
-      digitalWrite(HEAT_PIN, LOW);
-    }
-
-    if (moisture < user_prefs.moisture) {
-      unsigned long start_time = millis();
-      digitalWrite(WATER_EN, HIGH);
-      digitalWrite(WATER_PIN1, LOW);
-      digitalWrite(WATER_PIN2, HIGH);
+  
+    
+    if (current_time - m_time >= M) {
+      // Update server
+      m_time = current_time;
       
-      current_time = millis();
-      while (current_time - start_time < WATER_TIME){
-        current_time = millis();
+      // Read sensors, use actuators as necessary
+      float temp = (readTemp(20) * (9.0/5.0)) + 32.0;
+      int moisture = analogRead(MOISTURE_PIN);
+      int light = analogRead(LIGHT_PIN);
+  
+  
+      if (temp < user_prefs.temperature){
+        Serial.println("heat: HIGH");
+        digitalWrite(HEAT_PIN, HIGH);
       }
-      
-      digitalWrite(WATER_EN, LOW);
-      digitalWrite(WATER_PIN1, LOW);
-      digitalWrite(WATER_PIN2, LOW);
+      else {
+        Serial.println("heat: LOW");
+        digitalWrite(HEAT_PIN, LOW);
+      }
+  
+      if (moisture < user_prefs.moisture) {
+        unsigned long start_time = millis();
+        digitalWrite(WATER_EN, HIGH);
+        digitalWrite(WATER_PIN1, LOW);
+        digitalWrite(WATER_PIN2, HIGH);
         
+        current_time = millis();
+        while (current_time - start_time < WATER_TIME){
+          current_time = millis();
+        }
+        
+        digitalWrite(WATER_EN, LOW);
+        digitalWrite(WATER_PIN1, LOW);
+        digitalWrite(WATER_PIN2, LOW);
+          
+      }
+      Serial.print("Temperature (F): ");
+      Serial.println(temp);
+  
+      // Send moisture, temp, and light to server
+      char *moisture_str;
+  
+      if (moisture > MOIST_HIGH)
+        moisture_str = "HIGH";
+      else if (moisture < MOIST_LOW)
+        moisture_str = "LOW";
+      else moisture_str = "MEDIUM";
+  
+      char *light_str;
+      if (light > LIGHT_HIGH)
+        light_str = "HIGH";
+      else if (light < LIGHT_LOW)
+        light_str = "LOW";
+      else light_str = "MEDIUM";
+  
+      char temp_str[10];
+      snprintf(temp_str, sizeof(temp_str), "%f", temp);
+      sendInfo(user_prefs.dev_id, light_str, moisture_str, temp_str);
+      
     }
-    Serial.print("Temperature (F): ");
-    Serial.println(temp);
-
-    // Send moisture, temp, and light to server
-    char *moisture_str;
-
-    if (moisture > MOIST_HIGH)
-      moisture_str = "HIGH";
-    else if (moisture < MOIST_LOW)
-      moisture_str = "LOW";
-    else moisture_str = "MEDIUM";
-
-    char *light_str;
-    if (light > LIGHT_HIGH)
-      light_str = "HIGH";
-    else if (light < LIGHT_LOW)
-      light_str = "LOW";
-    else light_str = "MEDIUM";
-
-    char temp_str[10];
-    snprintf(temp_str, sizeof(temp_str), "%f", temp);
-    sendInfo(user_prefs.dev_id, light_str, moisture_str, temp_str);
-    
   }
-
   
 }
 
