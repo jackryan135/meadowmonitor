@@ -22,6 +22,7 @@ def get_desired(species_id: int) -> Dict[str, Any]:
         'moisture': growth['moisture_use'],
         'light': growth['shade_tolerance'],
         'temperature_min': growth['temperature_minimum']['deg_f'],
+        'temperature_max': growth['temperature_maximum']['deg_f'],
         'ph_min': growth['ph_minimum'],
         'ph_max': growth['ph_maximum'],
     }
