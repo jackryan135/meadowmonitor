@@ -319,9 +319,14 @@ if (isset($_GET['id'])) {
 
 			<div class="form-row">
 				<div class="col">
-					<input type="text" class="form-control" name="moisture" id="idealMoisture"
+					<!-- <input type="text" class="form-control" name="moisture" id="idealMoisture"
 						value="<?php echo $device['idealMoisture']; ?>">
-					</input>
+					</input> -->
+					<select class="form-control" name="moisture" id="idealMoisture">
+						<option value="LOW">Low</option>
+						<option value="MEDIUM">Medium</option>
+						<option value="HIGH">High</option>
+					</select>
 				</div>
 				<div class="col">
 					<input type="text" class="form-control" name="temperature" id="idealTemp"
