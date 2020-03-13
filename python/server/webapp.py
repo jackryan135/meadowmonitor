@@ -1,6 +1,8 @@
 import pprint
 from typing import Dict, Any
 
+from flask import redirect
+
 from server import conf
 from server.tables import new_session, Devices, Data, Users, Plants
 from server.trefle import search_species_complete, get_desired, get_species
@@ -65,7 +67,8 @@ def change_plant(device_id: int, species_id: int):
     device.idealPH = (desired['ph_max'] + desired['ph_min']) / 2
 
     session.commit()
-    return "OK", 200
+    # return "OK", 200
+    return redirect(f"http://www.meadowmonitor.com:8080/devicedetails.php?id={device_id}")
 
 
 # def override_values(device_id: int, values: Dict[str, Any]):
@@ -84,8 +87,8 @@ def override_values(device_id: int, temperature: float, moisture: str):
 
     # if 'temperature' not in values and 'moisture' not in values:
     #     return "Empty request body", 204
-    return "OK", 200
-
+    # return "OK", 200
+    return redirect(f"http://www.meadowmonitor.com:8080/devicedetails.php?id={device_id}")
 
 def list_devices(user_id: int):
     session = new_session(conf.user, conf.password, conf.host, conf.port, conf.database)
