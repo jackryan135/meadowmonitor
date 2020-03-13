@@ -125,6 +125,7 @@ def add_device(user_id: int, label: str = None):
     device.idealTemp = 30
     device.idealLight = 'INTOLERANT'
     device.idealMoisture = 'MEDIUM'
+    device.idealPlantID = -1
     session.add(device)
     session.commit()
     return device.id, 201

@@ -155,6 +155,10 @@ def create_meadowmonitor_database(user: str, password: str, host: str, port: int
         create_database(engine.url)
         print("*******database created*******")
     Base.metadata.create_all(bind=engine)
+    sesh = new_session(user=conf.user, password=conf.password, host=conf.host, port=conf.port,
+                       database=conf.database)
+    sentinel = Plants(-1, "None")
+    sesh.add(sentinel)
 
 
 def create_test_data():
