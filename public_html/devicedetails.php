@@ -30,33 +30,33 @@ else{
 	}
 }
 
-if (isset($_POST['submit'])) {
-	try {
-		$connection = new PDO($dsn, $username, $password, $options);
-		$device = [
-			"hiddenid"        => $_POST['hiddenid'],
-			"ownerID" => $_POST['ownerID'],
-			"idealPlantSpecies"  => $_POST['idealPlantSpecies'],
-			"idealMoisture" => $_POST['idealMoisture'],
-			"idealTemp" => $_POST['idealTemp'],
-			"date"      => $_POST['date']
-		];
+// if (isset($_POST['submit'])) {
+// 	try {
+// 		$connection = new PDO($dsn, $username, $password, $options);
+// 		$device = [
+// 			"hiddenid"        => $_POST['hiddenid'],
+// 			"ownerID" => $_POST['ownerID'],
+// 			"idealPlantSpecies"  => $_POST['idealPlantSpecies'],
+// 			"idealMoisture" => $_POST['idealMoisture'],
+// 			"idealTemp" => $_POST['idealTemp'],
+// 			"date"      => $_POST['date']
+// 		];
 
-		$sql = "UPDATE devices
-			  SET id = :hiddenid,
-				ownerID = :ownerID,
-				idealPlantSpecies = :idealPlantSpecies,
-				idealMoisture = :idealMoisture,
-				idealTemp = :idealTemp,
-				date = :date
-			  WHERE id = :hiddenid";
+// 		$sql = "UPDATE devices
+// 			  SET id = :hiddenid,
+// 				ownerID = :ownerID,
+// 				idealPlantSpecies = :idealPlantSpecies,
+// 				idealMoisture = :idealMoisture,
+// 				idealTemp = :idealTemp,
+// 				date = :date
+// 			  WHERE id = :hiddenid";
 
-		$statement = $connection->prepare($sql);
-		$statement->execute($device);
-	} catch (PDOException $error) {
-		echo $sql . "<br>" . $error->getMessage();
-	}
-}
+// 		$statement = $connection->prepare($sql);
+// 		$statement->execute($device);
+// 	} catch (PDOException $error) {
+// 		echo $sql . "<br>" . $error->getMessage();
+// 	}
+// }
 
 if (isset($_GET['id'])) {
 	try {
@@ -257,7 +257,7 @@ if (isset($_GET['id'])) {
 
 	<div class="container px-xl-5" style="padding:20px; margin-top:10px;">
 		<h5>Edit Environment Settings:</h5>
-		<form method="post" action="http://meadowmonitor.com:5001/api/webapp/<?php echo $device['hiddenid'] ?>/plant/change" class="px-xl-5" style="margin-top:30px;" id="plantChangeForm">
+		<form method="post" action="http://meadowmonitor.com:5001/api/webapp/<?php echo $deviceID; ?>/plant/change" class="px-xl-5" style="margin-top:30px;" id="plantChangeForm">
 			<div class="row">
 				<label for="plantSpecies" class="col">
 					Plant Species Search
@@ -296,7 +296,7 @@ if (isset($_GET['id'])) {
 			<div class="form-row">
 				<div class="col">
 					<input type="text" class="form-control" id="plantSpeciesSearch"
-						value="<?php echo $device['plantName'] ?>"
+						value="<?php echo $device['plantName']; ?>"
 						onChange="update_search(this.value);">
 					</input>
 				</div>
@@ -307,7 +307,7 @@ if (isset($_GET['id'])) {
 			<input class="btn btn-primary" type="submit" value="Change Plant" style="margin-top: 10px; margin-right:auto;">
 		</form>
 
-		<form method="post" action="http://meadowmonitor.com:5001/api/webapp/<?php echo $device['hiddenid'] ?>/override" class="px-xl-5" style="margin-top:30px;">
+		<form method="post" action="http://meadowmonitor.com:5001/api/webapp/<?php echo $deviceID; ?>/override" class="px-xl-5" style="margin-top:30px;">
 			<div class="row">
 				<label for="idealMoisture" class="col">
 					Desired Moisture
@@ -320,12 +320,12 @@ if (isset($_GET['id'])) {
 			<div class="form-row">
 				<div class="col">
 					<input type="text" class="form-control" name="moisture" id="idealMoisture"
-						value="<?php echo $device['idealMoisture'] ?>">
+						value="<?php echo $device['idealMoisture']; ?>">
 					</input>
 				</div>
 				<div class="col">
 					<input type="text" class="form-control" name="temperature" id="idealTemp"
-						value="<?php echo $device['idealTemp'] ?>">
+						value="<?php echo $device['idealTemp']; ?>">
 					</input>
 				</div>
 			</div>
