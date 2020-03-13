@@ -1,4 +1,5 @@
 import datetime
+import pprint
 import random
 from typing import List, Tuple
 
@@ -44,8 +45,10 @@ class Devices(Base):
     idealPlantID = Column(Integer, ForeignKey('plants.id'))
     idealPH = Column(Float)
     idealTemp = Column(Float)
-    idealLight = Column(Float)  # go to str
-    idealMoisture = Column(Float)  # go to str
+    # idealLight = Column(Float)  # go to str
+    # idealMoisture = Column(Float)  # go to str
+    idealLight = Column(String(20))  # go to str
+    idealMoisture = Column(String(20))  # go to str
     date = Column(DateTime, server_default=sqlalchemy.func.now())
 
     user = relationship('Users', back_populates='devices')
@@ -53,7 +56,7 @@ class Devices(Base):
 
     def __repr__(self):
         return (
-            f'<Devices: id={self.id}, ownerID={self.ownerID}, idealPlantID={self.idealPlantID}, '
+            f'<Devices: id={self.id}, label={self.label}, ownerID={self.ownerID}, idealPlantID={self.idealPlantID}, '
             f'idealPH={self.idealPH}, idealTemp={self.idealTemp}, idealLight={self.idealLight}, '
             f'idealMoisture={self.idealMoisture}, date={self.date}>'
         )
@@ -196,8 +199,10 @@ def create_test_data():
     users = sesh.query(Users).all()  # type: List[Users]
     users.append(users[0])  # add jeff bridges again
     device_rows = []
+    levels = ['HIGH', 'MEDIUM', 'LOW', 'TOLERANT']
     for user, plant in zip(users, plants):
         print("*******Before Trefle called*******")
+        pprint.pprint(trefle.get_species(plant[0]).json())
         plant_data = trefle.get_species(plant[0]).json()['growth']
         print("*******JSON parsed*******")
         device_row = Devices(
@@ -205,23 +210,25 @@ def create_test_data():
             idealPlantID=plant[0],
             idealPH=(plant_data['ph_minimum'] + plant_data['ph_maximum']) / 2,
             idealTemp=plant_data['temperature_minimum']['deg_f'],
-            idealLight=random.randrange(300, 999),
+            # idealLight=random.randrange(300, 999),
+            idealLight=random.choice(levels),
             # these should both be maps of str -> float, i don't want to deal with it right now.
-            idealMoisture=random.randrange(300, 999),
+            # idealMoisture=random.randrange(300, 999),
+            idealMoisture=random.choice(levels),
             # these should both be maps of str -> float, i don't want to deal with it right now.
             # date=datetime.datetime.utcnow()  # don't need this if timestamps autopopulate
         )
         device_rows.append(device_row)
         print("*******Device Row Added*******")
-    sesh.add_all(device_rows)
-    sesh.commit()
-    print("******Devices added*******")
+        sesh.add_all(device_rows)
+        sesh.commit()
+        print("******Devices added*******")
 
-    devices = sesh.query(Devices).all()  # type: List[Devices]
-    plants = sesh.query(Plants).all()  # type: List[Plants]
-    data_rows = []
-    for device, plant in zip(devices, plants):
-        date = datetime.datetime.utcnow()
+        devices = sesh.query(Devices).all()  # type: List[Devices]
+        plants = sesh.query(Plants).all()  # type: List[Plants]
+        data_rows = []
+        for device, another_plant in zip(devices, plants):
+            date = datetime.datetime.utcnow()
         ph = 7
         temp = 65
         light = 30
@@ -236,13 +243,13 @@ def create_test_data():
                 moisture=moisture,
                 date=date,
             )
-            data_rows.append(data)
-            print("*******Data Row Added*******")
-            date += datetime.timedelta(minutes=60)
-            ph += random.random()
-            temp += (random.random() - 0.5) * 8
-            light += (random.random() - 0.5) * 4
-            moisture += (random.random() - 0.5) * 4
-    sesh.add_all(data_rows)
-    sesh.commit()
-    print("*******Data added*******")
+        data_rows.append(data)
+        print("*******Data Row Added*******")
+        date += datetime.timedelta(minutes=60)
+        ph += random.random()
+        temp += (random.random() - 0.5) * 8
+        light += (random.random() - 0.5) * 4
+        moisture += (random.random() - 0.5) * 4
+        sesh.add_all(data_rows)
+        sesh.commit()
+        print("*******Data added*******")
