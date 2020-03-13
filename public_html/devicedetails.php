@@ -177,7 +177,23 @@ if (isset($_GET['id'])) {
 				return e.moisture;
 			});
 
+			labels = labels.filter(function (value, index, ar) {
+    			return (index % 10 == 0);
+			} );
+
+			dates = dates.filter(function (value, index, ar) {
+    			return (index % 10 == 0);
+			} );
+
+			lightData = lightData.filter(function (value, index, ar) {
+    			return (index % 10 == 0);
+			} );
+
 			tempData = tempData.filter(function (value, index, ar) {
+    			return (index % 10 == 0);
+			} );
+
+			moistureData = moistureData.filter(function (value, index, ar) {
     			return (index % 10 == 0);
 			} );
 
