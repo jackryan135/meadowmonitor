@@ -2,6 +2,7 @@
 #include <WiFiClient.h>
 #include <WebServer.h>
 #include <HTTPClient.h>
+#include <ArduinoJson.h>
 #include <Arduino.h>
 #include "Adafruit_seesaw.h"
 
@@ -36,6 +37,7 @@
 
 float readTemp(int n);
 void sendInfo(int devID, char *lightVal, char *moistVal, char *tempVal);
+String *getDesired(int devID);
 
 const char* ssid = "SCU-Student";
 const char* password =  "gosantaclara";
@@ -99,9 +101,18 @@ void loop() {
   if (current_time - n_time >= N) {
     // Update ESP from server
     // => struct user_prefs
-    // Data will come back as JSON
     // Some values will be LOW-HIGH -> convert to analog values via sensor ranges
     n_time = current_time;
+
+    String *infoParse = getDesired(user_prefs.dev_id);
+    user_prefs.temperature = infoParse[0].toFloat();
+
+    String moisture_str = infoParse[1];
+    if (moisture_str.equalsIgnoreCase("HIGH"))
+      user_prefs.moisture = MOIST_HIGH;
+    else if (moisture_str.equalsIgnoreCase("LOW"))
+      user_prefs.moisture = MOIST_LOW;
+    else user_prefs.moisture = MOIST_MED;
   }
 
   
@@ -216,3 +227,43 @@ void sendInfo(int devID, char *lightVal, char *moistVal, char *tempVal) {
    }
    sendHTTP.end();
 }//end send info
+
+String *getDesired(int devID) {
+  HTTPClient desiredHTTP;
+  String desiredURL = deviceURL + devID; 
+  desiredURL.concat("/desired/");
+  desiredHTTP.begin(desiredURL);
+  desiredHTTP.addHeader("Content-Type","application/json");
+
+  String getInfo = String(devID);
+  
+  
+  Serial.println(getInfo);
+  int sendRC = desiredHTTP.GET();
+  String infoParse[2];
+  if (sendRC > 0){
+    String response = desiredHTTP.getString(); //Get the response to the request
+    DynamicJsonDocument info(1024);
+    deserializeJson(info,response);
+
+    String temp_str = info["temperature_min"];
+    String moist_str = info["moisture"];
+    
+    Serial.println(sendRC);   //Print return code
+    
+    infoParse[0] = temp_str;
+    infoParse[1] = moist_str;
+
+    Serial.println(infoParse[0]);
+    Serial.println(infoParse[1]);
+
+  }else{
+ 
+    Serial.print("Error on sending POST: ");
+    Serial.println(sendRC);
+  
+  }
+  desiredHTTP.end();
+
+  return infoParse;
+}
