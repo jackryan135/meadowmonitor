@@ -177,6 +177,10 @@ if (isset($_GET['id'])) {
 				return e.moisture;
 			});
 
+			tempData = tempData.filter(function (value, index, ar) {
+    			return (index % 10 == 0);
+			} );
+
 		var ctxtemp = document.getElementById('tempchart-container').getContext("2d");
 		var ctxlight = document.getElementById('lightchart-container').getContext("2d");
 		var ctxmoist = document.getElementById('moistchart-container').getContext("2d");
