@@ -5,6 +5,7 @@
 #include <ArduinoJson.h>
 #include <Arduino.h>
 #include "Adafruit_seesaw.h"
+#include "SPIFFS.h"
 
 // timing
 #define N 10000 // Update ESP every 10 seconds
@@ -14,7 +15,7 @@
 // Default values
 #define TEMP 72 // Default temperature
 #define MOISTURE 2900 // Default moisture
-#define LIGHT 2500 // Default light; TODO: find default for light
+#define LIGHT 2500 // Default light
 
 // Sensor ranges
 #define MOIST_HIGH 3050
@@ -41,10 +42,15 @@ String *getDesired(int devID);
 
 const char* ssid = "SCU-Student";
 const char* password =  "gosantaclara";
+const char *portal_ssid = "meadow-monitor-esp32";
+const char *portal_password = NULL;  // no password
+
 const String deviceURL = "http://meadowmonitor.com:5001/api/emb/";
 const String addURL = "http://meadowmonitor.com:5001/api/webapp/";
 
 Adafruit_seesaw ss;
+
+WebServer server(80);
 
 unsigned long n_time;
 unsigned long m_time;
@@ -56,18 +62,60 @@ struct preferences {
   int light;
 } user_prefs;
 
+void handle_root() {
+  Serial.println("handling root");
+  // display form
+  File form = SPIFFS.open("/portal.html", "r");
+  server.streamFile(form, "text/html");
+  form.close();
+}
+
+void handle_setup() {
+  // todo
+  String ssid = server.arg("ssid");
+  String password = server.arg("password");
+  user_prefs.dev_id = server.arg("device_id").toInt();
+  
+  Serial.printf("ssid: %s, pw: %s, id: %d\n", ssid.c_str(), password.c_str(), user_prefs.dev_id);
+  // Disconnect if already connected.
+  if (WiFi.status() == WL_CONNECTED) {
+    WiFi.disconnect();
+  }
+
+  Serial.printf("connecting to... %s\n", ssid.c_str());
+  WiFi.begin(ssid.c_str(), password.c_str());
+  // Wait until conncted.
+  while (WiFi.status() != WL_CONNECTED) {
+    yield();
+  }
+  
+  String response = "<p>Connected to " + WiFi.SSID() + ".</p>\n";
+  response += "<p>Click <a href=\"/\">here</a> to change settings again.</p>";
+  server.send(200, "text/html", response.c_str());
+}
+
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(115200);
+  SPIFFS.begin();
 
   delay(4000);   //Delay needed before calling the WiFi.begin
  
-  WiFi.begin(ssid, password); 
-  
-  while (WiFi.status() != WL_CONNECTED) { //Check for the connection
-    delay(1000);
-    Serial.println("Connecting to WiFi..");
-  }
+//  WiFi.begin(ssid, password); 
+//  
+//  while (WiFi.status() != WL_CONNECTED) { //Check for the connection
+//    delay(1000);
+//    Serial.println("Connecting to WiFi..");
+//  }
+
+  WiFi.mode(WIFI_AP_STA);
+  WiFi.softAP(portal_ssid, portal_password);
+  IPAddress myIP = WiFi.softAPIP();
+  Serial.print("AP IP address: ");
+  Serial.println(myIP);
+  server.on("/", handle_root);
+  server.on("/setup", HTTP_POST, handle_setup);
+  server.begin();
  
   Serial.println("Connected to the WiFi network");
 
@@ -97,6 +145,12 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
+
+  server.handleClient();
+
+  if (WiFi.status() != WL_CONNECTED)
+    return;
+  
   unsigned long current_time = millis();
   if (current_time - n_time >= N) {
     // Update ESP from server
