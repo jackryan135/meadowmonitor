@@ -45,12 +45,14 @@ def change_plant(device_id: int, species_id: int):
     # return None, 501
     session = new_session(conf.user, conf.password, conf.host, conf.port, conf.database)
     device = session.query(Devices).filter_by(id=device_id).one_or_none()  # type: Devices
+    if device is None:
+        return f'No device found for ID {device_id}', 404
 
     plant = session.query(Plants).filter_by(id=species_id).one_or_none()
     if plant is None:
         species_data = get_species(species_id).json()
         if species_data['complete_data'] is not True:
-            return "No plant data found", 404
+            return f'No plant data found for ID {species_id}', 404
         plant = Plants(id=species_id, plantName=species_data['common_name'])
         session.add(plant)
         session.commit()
