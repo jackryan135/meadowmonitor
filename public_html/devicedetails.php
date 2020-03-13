@@ -77,7 +77,7 @@ if (isset($_GET['id'])) {
 
 		$device = $devicestatement->fetch(PDO::FETCH_ASSOC);
 
-		$graphsql = "SELECT date, ph, temp, light, moisture FROM data WHERE deviceID = :id"; # and date >= DATE_SUB(NOW(),INTERVAL 1 HOUR)";
+		$graphsql = "SELECT date, ph, temp, light, moisture FROM data WHERE deviceID = :id" and date >= DATE_SUB(NOW(),INTERVAL 1 HOUR)";
 		$graphstate = $connection->prepare($graphsql);
 		$graphstate->bindValue(':id', $id);
 		$graphstate->execute();
