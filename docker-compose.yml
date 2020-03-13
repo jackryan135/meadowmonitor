@@ -8,7 +8,7 @@ services:
       - frontend
       - backend
     ports:
-      - 8080:80
+      - 80:80
     volumes:
       - ./public_html/:/var/www/html/
       - ./private_files/:/var/private/
@@ -30,7 +30,7 @@ services:
     links:
       - mysql
     ports:
-      - 80:80
+      - 8081:80
     environment:
       MYSQL_USERNAME: root
       MYSQL_ROOT_PASSWORD: root
