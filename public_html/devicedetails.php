@@ -323,9 +323,21 @@ if (isset($_GET['id'])) {
 						value="<?php echo $device['idealMoisture']; ?>">
 					</input> -->
 					<select class="form-control" name="moisture" id="idealMoisture">
-						<option value="LOW">Low</option>
-						<option value="MEDIUM">Medium</option>
-						<option value="HIGH">High</option>
+						<?php if($device['idealMoisture'] == "LOW"){ ?>
+							<option value="LOW" selected>Low</option>
+						<?php } else { ?>
+							<option value="LOW">Low</option>
+						<?php } ?>
+						<?php if($device['idealMoisture'] == "MEDIUM"){ ?>
+							<option value="MEDIUM" selected>Medium</option>
+						<?php } else { ?>
+							<option value="MEDIUM">Medium</option>
+						<?php } ?>
+						<?php if($device['idealMoisture'] == "HIGH"){ ?>
+							<option value="HIGH" selected>High</option>
+						<?php } else { ?>
+							<option value="HIGH">High</option>
+						<?php } ?>
 					</select>
 				</div>
 				<div class="col">
