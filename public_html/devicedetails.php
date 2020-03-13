@@ -257,47 +257,80 @@ if (isset($_GET['id'])) {
 
 	<div class="container px-xl-5" style="padding:20px; margin-top:10px;">
 		<h5>Edit Environment Settings:</h5>
-		<form method="post" class="px-xl-5" style="margin-top:30px;">
+		<form method="post" action="http://meadowmonitor.com:5001/api/webapp/<?php echo $device['hiddenid'] ?>/plant/change" class="px-xl-5" style="margin-top:30px;" id="plantChangeForm">
 			<div class="row">
-			<div class="col">
-					<input type="hidden" class="form-control" name="hiddenid" id="hiddenid" value="<?php echo $device['id'] ?>">
-					</input>
-				</div>
-				<div class="col">
-					<input type="hidden" class="form-control" name="ownerID" id="ownerID" value="<?php echo $device['ownerID'] ?>">
-					</input>
-				</div>
-				<div class="col">
-					<input type="hidden" class="form-control" name="date" id="date" value="<?php echo $device['date'] ?>">
-					</input>
-				</div>
-			</div>
-			<div class="row">
+				<label for="plantSpecies" class="col">
+					Plant Species Search
+				</label>
 				<label for="plantSpecies" class="col">
 					Plant Species
 				</label>
-				<label for="moisture" class="col">
+			</div>
+
+			<script>
+				function update_select(data) {
+					$("#idealPlantSpecies").empty();
+
+					var select = document.getElementById("idealPlantSpecies");
+					
+					for (var i = 0; i < data.length; i++) {
+						var option = document.createElement('option');
+						option.text = data[i].common_name;
+						option.value = data[i].id;
+						select.add(option, 0);
+					}
+					select.disabled = false;
+				}
+
+				function update_search(term) {
+					var select = document.getElementById("idealPlantSpecies");
+					select.disabled = true;
+					$.getJSON(
+						"http://meadowmonitor.com:5001/api/webapp/search",
+						{ 'search_term': term },
+						update_select
+					);
+				}
+			</script>
+
+			<div class="form-row">
+				<div class="col">
+					<input type="text" class="form-control" id="plantSpeciesSearch"
+						value="<?php echo $device['plantName'] ?>"
+						onChange="update_search(this.value);">
+					</input>
+				</div>
+				<div class="col">
+					<select class="form-control" name="species_id" id="idealPlantSpecies" disabled="false"></select>
+				</div>
+			</div>
+			<input class="btn btn-primary" type="submit" value="Change Plant" style="margin-top: 10px; margin-right:auto;">
+		</form>
+
+		<form method="post" action="http://meadowmonitor.com:5001/api/webapp/<?php echo $device['hiddenid'] ?>/override" class="px-xl-5" style="margin-top:30px;">
+			<div class="row">
+				<label for="idealMoisture" class="col">
 					Desired Moisture
 				</label>
-				<label for="temp" class="col">
+				<label for="idealTemp" class="col">
 					Desired Tempurature (ºF)
 				</label>
 			</div>
+
 			<div class="form-row">
 				<div class="col">
-					<input type="text" class="form-control" name="idealPlantSpecies" id="idealPlantSpecies" value="<?php echo $device['plantName'] ?>">
+					<input type="text" class="form-control" name="moisture" id="idealMoisture"
+						value="<?php echo $device['idealMoisture'] ?>">
 					</input>
 				</div>
 				<div class="col">
-					<input type="text" class="form-control" name="idealMoisture" id="idealMoisture" value="<?php echo $device['idealMoisture'] ?>">
-					</input>
-				</div>
-				<div class="col">
-					<input type="text" class="form-control" name="idealTemp" id="idealTemp" value="<?php echo $device['idealTemp'] ?>">
+					<input type="text" class="form-control" name="temperature" id="idealTemp"
+						value="<?php echo $device['idealTemp'] ?>">
 					</input>
 				</div>
 			</div>
-			<input class="btn btn-primary" type="submit" name="submit" value="Submit" style="margin-top: 10px; margin-right:auto;">
+			<input class="btn btn-primary" type="submit" name="submit" value="Override defaults"
+				style="margin-top: 10px; margin-right:auto;">
 		</form>
 	</div>
 
