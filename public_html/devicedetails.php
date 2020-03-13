@@ -124,13 +124,26 @@ if (isset($_GET['id'])) {
 			<div class="card bg-warning text-white text-center p-1">
 				<h5 style="padding-top: 16px;">Light Level</h5>
 				<div id="lightDiv">
-					<p><strong><?php echo $user['light']; ?></strong></p>
+					<p><strong>
+						<?php if($user['light'] >= 3800){
+							echo "High";
+						} else if ($user['light'] >= 2900 && $user['light'] < 3800){
+							echo "Medium";	
+						}else{
+							echo "Low";	
+						}?></strong></p>
 				</div>
 			</div>
 			<div class="card bg-info text-white text-center p-1">
 				<h5 style="padding-top: 16px;">Moisture Level</h5>
 				<div id="moistureDiv">
-					<p><strong><?php echo $user['moisture']; ?></strong></p>
+					<p><strong><?php if($user['moisture'] >= 3500){
+							echo "High";
+						} else if ($user['moisture'] >= 2750 && $user['light'] < 3500){
+							echo "Medium";	
+						}else{
+							echo "Low";	
+						}?></strong></p>
 				</div>
 			</div>
 		</div>
