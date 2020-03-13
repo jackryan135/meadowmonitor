@@ -178,23 +178,23 @@ if (isset($_GET['id'])) {
 			});
 
 			labels = labels.filter(function (value, index, ar) {
-    			return (index % 12 == 0);
+    			return (index % 6 == 0);
 			} );
 
 			dates = dates.filter(function (value, index, ar) {
-    			return (index % 12 == 0);
+    			return (index % 6 == 0);
 			} );
 
 			lightData = lightData.filter(function (value, index, ar) {
-    			return (index % 12 == 0);
+    			return (index % 6 == 0);
 			} );
 
 			tempData = tempData.filter(function (value, index, ar) {
-    			return (index % 12 == 0);
+    			return (index % 6 == 0);
 			} );
 
 			moistureData = moistureData.filter(function (value, index, ar) {
-    			return (index % 12 == 0);
+    			return (index % 6 == 0);
 			} );
 
 		var ctxtemp = document.getElementById('tempchart-container').getContext("2d");
