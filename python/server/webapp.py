@@ -68,21 +68,22 @@ def change_plant(device_id: int, species_id: int):
     return "OK", 200
 
 
-def override_values(device_id: int, values: Dict[str, Any]):
+# def override_values(device_id: int, values: Dict[str, Any]):
+def override_values(device_id: int, temperature: float, moisture: str):
     session = new_session(conf.user, conf.password, conf.host, conf.port, conf.database)
     device = session.query(Devices).filter_by(id=device_id).one_or_none()  # type: Devices
     if device is None:
         return "No matching device", 404
-    if 'temperature' in values:
+    if temperature is not None:
         # override ideal temperature
-        device.idealTemp = values['temperature']
-    if 'moisture' in values:
+        device.idealTemp = temperature
+    if moisture is not None:
         # override ideal moisture
-        device.idealMoisture = values['moisture'].upper()
+        device.idealMoisture = moisture.upper()
     session.commit()
 
-    if 'temperature' not in values and 'moisture' not in values:
-        return "Empty request body", 204
+    # if 'temperature' not in values and 'moisture' not in values:
+    #     return "Empty request body", 204
     return "OK", 200
 
 
