@@ -46,7 +46,7 @@ def change_plant(device_id: int, species_id: int):
 
     plant = session.query(Plants).filter_by(id=species_id).one_or_none()
     if plant is None:
-        species_data = get_species(species_id)
+        species_data = get_species(species_id).json()
         if species_data['complete_data'] is not True:
             return "No plant data found", 404
         plant = Plants(id=species_id, plantName=species_data['common_name'])
