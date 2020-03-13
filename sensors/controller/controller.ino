@@ -1,3 +1,7 @@
+#include <WiFi.h>
+#include <WiFiClient.h>
+#include <WebServer.h>
+#include <HTTPClient.h>
 #include <Arduino.h>
 #include "Adafruit_seesaw.h"
 
@@ -30,8 +34,13 @@
 #define WATER_PIN1 32
 #define WATER_PIN2 33
 
-uint16_t readMoisture(int n);
 float readTemp(int n);
+void sendInfo(int devID, char *lightVal, char *moistVal, char *tempVal);
+
+const char* ssid = "SCU-Student";
+const char* password =  "gosantaclara";
+const String deviceURL = "http://meadowmonitor.com:5001/api/emb/";
+const String addURL = "http://meadowmonitor.com:5001/api/webapp/";
 
 Adafruit_seesaw ss;
 
@@ -39,7 +48,7 @@ unsigned long n_time;
 unsigned long m_time;
 
 struct preferences {
-  char dev_id[100];
+  int dev_id;
   float temperature;
   int moisture;
   int light;
@@ -48,6 +57,17 @@ struct preferences {
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(115200);
+
+  delay(4000);   //Delay needed before calling the WiFi.begin
+ 
+  WiFi.begin(ssid, password); 
+  
+  while (WiFi.status() != WL_CONNECTED) { //Check for the connection
+    delay(1000);
+    Serial.println("Connecting to WiFi..");
+  }
+ 
+  Serial.println("Connected to the WiFi network");
 
   pinMode(MOISTURE_PIN, INPUT);
   pinMode(LIGHT_PIN, INPUT);
@@ -138,9 +158,12 @@ void loop() {
     else if (light < LIGHT_LOW)
       light_str = "LOW";
     else light_str = "MEDIUM";
-      
-  }
 
+    char temp_str[10];
+    snprintf(temp_str, sizeof(temp_str), "%f", temp);
+    sendInfo(user_prefs.dev_id, light_str, moisture_str, temp_str);
+    
+  }
 
   
 }
@@ -158,3 +181,38 @@ float readTemp(int n) {
 
   return (tempSum / (float) n);
 }
+
+void sendInfo(int devID, char *lightVal, char *moistVal, char *tempVal) {
+  HTTPClient sendHTTP;
+  String sendURL = deviceURL + devID + "/log/";
+  sendHTTP.begin(sendURL);
+  sendHTTP.addHeader("Content-Type","application/json");
+  
+  int phVal = 0;
+  String postInfo = "{\"light\": ";
+  
+  postInfo.concat(lightVal);
+  postInfo.concat(",\n\"moisture\": ");
+  postInfo.concat(moistVal);
+  postInfo.concat(",\n\"ph\": ");
+  postInfo.concat(phVal);
+  postInfo.concat(",\n\"temp\": ");
+  postInfo.concat(tempVal);
+  postInfo.concat("}");
+  
+  Serial.println(postInfo);
+  int sendRC = sendHTTP.POST(postInfo);
+  if (sendRC > 0){
+    String response = sendHTTP.getString(); //Get the response to the request
+ 
+    Serial.println(sendRC);   //Print return code
+    Serial.println(response);
+
+  }else{
+ 
+    Serial.print("Error on sending POST: ");
+    Serial.println(sendRC);
+ 
+   }
+   sendHTTP.end();
+}//end send info
