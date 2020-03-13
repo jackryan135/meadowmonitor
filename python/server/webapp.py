@@ -105,12 +105,21 @@ def list_devices(user_id: int):
     return devices
 
 
-def add_device(user_id: int, values: Dict[str, Any]):
+# def add_device(user_id: int, values: Dict[str, Any]):
+def add_device(user_id: int, label: str = None):
     session = new_session(conf.user, conf.password, conf.host, conf.port, conf.database)
-    if 'label' in values:
-        device = Devices(ownerID=user_id, label=values['label'])
+    # if 'label' in values:
+    #     device = Devices(ownerID=user_id, label=values['label'])
+    # else:
+    #     device = Devices(ownerID=user_id)
+    device = Devices(ownerID=user_id)
+    if label is None or label == "":
+        device.label = 'Untitled device'
     else:
-        device = Devices(ownerID=user_id)
+        device.label = label
+    device.idealTemp = 30
+    device.idealLight = 'INTOLERANT'
+    device.idealMoisture = 'MEDIUM'
     session.add(device)
     session.commit()
     return device.id, 201
