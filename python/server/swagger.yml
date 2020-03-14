@@ -31,17 +31,17 @@ paths:
           schema:
             type: object
             properties:
-#              plant_type:
-#                type: "string"
               moisture:
                 type: string
               light:
                 type: string
               temperature_min:
                 type: number
-              ph_min:
-                type: number
-              ph_max:
+#              ph_min:
+#                type: number
+#              ph_max:
+#                type: number
+              ph:
                 type: number
         404:
           description: "Device not found."
@@ -65,10 +65,10 @@ paths:
           schema:
             type: object
             properties:
-#              date:
-#                type: string
-#              species:
-#                type: string
+              #              date:
+              #                type: string
+              #              species:
+              #                type: string
               light:
                 type: number
               moisture:
@@ -130,7 +130,7 @@ paths:
 
   /webapp/{device_id}/plant:
     get:
-      operationId: "server.webapp.plant"
+      operationId: "server.webapp.get_plant"
       tags:
         - webapp
       summary: "Fetch current plant for an embedded device"
@@ -150,14 +150,17 @@ paths:
           description: "Device has no plant set"
         404:
           description: "Device not found."
+
   /webapp/{device_id}/plant/change:
     post:
       operationId: "server.webapp.change_plant"
       tags:
         - webapp
       summary: "Change the plant species of the device"
+#      consumes:
+#        - "text/plain"
       consumes:
-        - "text/plain"
+        - "application/x-www-form-urlencoded"
       parameters:
         - in: path
           name: device_id
@@ -165,12 +168,56 @@ paths:
           type: integer
           minimum: 1
           description: "Device ID"
-        - in: body
-          name: species
+        - in: formData
+          name: species_id
           required: true
+          type: integer
+          description: "The new plant species ID to change to"
+      responses:
+        200:
+          description: "Successful update"
           schema:
             type: string
-          description: "The new plant species to change to"
+
+  /webapp/{device_id}/override:
+    post:
+      operationId: "server.webapp.override_values"
+      tags:
+        - webapp
+      summary: "Override the device target values"
+#      consumes:
+#        - "text/plain"
+      consumes:
+        - "application/x-www-form-urlencoded"
+      parameters:
+        - in: path
+          name: device_id
+          required: true
+          type: integer
+          minimum: 1
+          description: "Device ID"
+#        - in: body
+#          name: values
+#          required: true
+#          schema:
+#            type: object
+#            properties:
+#              moisture:
+#                type: string
+#                description: "ideal moisture (LOW, HIGH, MEDIUM)"
+#              temperature:
+#                type: number
+#                description: "ideal temperature (°F)"
+        - in: formData
+          name: temperature
+          required: true
+          type: number
+          description: "ideal temperature (°F)"
+        - in: formData
+          name: moisture
+          required: true
+          type: string
+          description: "ideal moisture (LOW, HIGH, MEDIUM)"
       responses:
         200:
           description: "Successful update"
@@ -207,12 +254,15 @@ paths:
           description: "User has no devices."
         404:
           description: "User not found."
+
   /webapp/{user_id}/add:
-    put:
+    post:
       operationId: "server.webapp.add_device"
       tags:
         - webapp
       summary: "Add a new device for a user"
+      consumes:
+        - "application/x-www-form-urlencoded"
       parameters:
         - in: path
           name: user_id
@@ -220,16 +270,48 @@ paths:
           type: integer
           minimum: 1
           description: "User ID"
-        - in: body
-          name: values
+        - in: formData
+          name: label
           required: false
-          schema:
-            type: object
-            properties:
-              label:
-                type: string
+          type: string
+          description: "(optional) label for newly created device"
+#          schema:
+#            type: object
+#            properties:
+#              label:
+#                type: string
       responses:
         201:
           description: "Successful device add. Returns the new device ID."
           schema:
             type: integer
+
+  /webapp/search:
+    get:
+      operationId: "server.webapp.search"
+      tags:
+        - webapp
+      summary: "Search plants database for a partial term"
+      parameters:
+        - in: query
+          name: search_term
+          type: string
+          required: true
+          description: "Partial search term"
+      responses:
+        200:
+          description: "Found plants"
+          schema:
+            type: array
+            items:
+              properties:
+                id:
+                  type: integer
+                scientific_name:
+                  type: string
+                common_name:
+                  type: string
+                complete_data:
+                  type: boolean
+        204:
+          description: "No plants found"
