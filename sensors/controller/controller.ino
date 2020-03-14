@@ -14,7 +14,7 @@
 
 // Default values
 #define TEMP 72 // Default temperature
-#define MOISTURE 2900 // Default moisture
+#define MOISTURE 2600//2900 // Default moisture
 #define LIGHT 2500 // Default light
 
 // Sensor ranges
@@ -23,28 +23,28 @@
 #define MOIST_LOW 2750
 
 #define LIGHT_HIGH 3800
-#define LIGHT_MED 3300
-#define LIGHT_LOW 2800
+#define LIGHT_MED 3500
+#define LIGHT_LOW 2900
 
 // inputs
 #define MOISTURE_PIN 36
-#define LIGHT_PIN 15
+#define LIGHT_PIN 34
 
 // outputs
-#define HEAT_PIN 2
-#define WATER_EN 35
+#define HEAT_PIN 19
+#define WATER_EN 23
 #define WATER_PIN1 32
 #define WATER_PIN2 33
 
 float readTemp(int n);
 void sendInfo(int devID, char *lightVal, char *moistVal, char *tempVal);
-String *getDesired(int devID);
+DynamicJsonDocument getDesired(int devID);
 
 const char *portal_ssid = "meadow-monitor-esp32";
 const char *portal_password = NULL;  // no password
 
-const String deviceURL = "http://meadowmonitor.com:5001/api/emb/";
-const String addURL = "http://meadowmonitor.com:5001/api/webapp/";
+const String deviceURL = "http://www.meadowmonitor.com:5001/api/emb/";
+const String addURL = "http://www.meadowmonitor.com:5001/api/webapp/";
 
 Adafruit_seesaw ss;
 
@@ -52,6 +52,8 @@ WebServer server(80);
 
 unsigned long n_time;
 unsigned long m_time;
+
+float temp_avg = 0.0;
 
 struct preferences {
   int dev_id;
@@ -97,7 +99,7 @@ void setup() {
   Serial.begin(115200);
   SPIFFS.begin();
 
-  delay(4000);   //Delay needed before calling the WiFi.begin
+  delay(500);   //Delay needed before calling the WiFi.begin
  
 //  WiFi.begin(ssid, password); 
 //  
@@ -147,29 +149,38 @@ void loop() {
   server.handleClient();
 
   if (WiFi.status() == WL_CONNECTED) {
-    Serial.print("Connected to ");
-    Serial.println(WiFi.SSID());
     
     unsigned long current_time = millis();
     if (current_time - n_time >= N) {
+      Serial.println("UPDATE ESP");
       // Update ESP from server
       // => struct user_prefs
       // Some values will be LOW-HIGH -> convert to analog values via sensor ranges
       n_time = current_time;
-  
-      String *infoParse = getDesired(user_prefs.dev_id);
-      user_prefs.temperature = infoParse[0].toFloat();
-  
-      String moisture_str = infoParse[1];
-      if (moisture_str.equalsIgnoreCase("HIGH"))
-        user_prefs.moisture = MOIST_HIGH;
-      else if (moisture_str.equalsIgnoreCase("LOW"))
-        user_prefs.moisture = MOIST_LOW;
-      else user_prefs.moisture = MOIST_MED;
+
+      DynamicJsonDocument info = getDesired(user_prefs.dev_id);
+      String temp_str = info["temperature_min"];
+      String moist_str = info["moisture"];
+      
+      if (temp_str.equals("null")) {
+        user_prefs.temperature = TEMP;
+      } else user_prefs.temperature = temp_str.toFloat();
+
+      
+      if (moist_str.equals("null")) {
+        user_prefs.moisture = MOISTURE;
+      } else {
+        if (moist_str.equalsIgnoreCase("HIGH"))
+          user_prefs.moisture = MOIST_HIGH;
+        else if (moist_str.equalsIgnoreCase("LOW"))
+          user_prefs.moisture = MOIST_LOW;
+        else user_prefs.moisture = MOIST_MED;
+      }
     }
   
     
     if (current_time - m_time >= M) {
+      Serial.println("UPDATE WEB SERVER");
       // Update server
       m_time = current_time;
       
@@ -177,58 +188,48 @@ void loop() {
       float temp = (readTemp(20) * (9.0/5.0)) + 32.0;
       int moisture = analogRead(MOISTURE_PIN);
       int light = analogRead(LIGHT_PIN);
+
+      if (temp_avg == 0.0)
+        temp = rollingAverage(temp, temp, 5.0);
+      else temp = rollingAverage(temp_avg, temp, 5.0);
   
   
       if (temp < user_prefs.temperature){
-        Serial.println("heat: HIGH");
         digitalWrite(HEAT_PIN, HIGH);
       }
       else {
-        Serial.println("heat: LOW");
         digitalWrite(HEAT_PIN, LOW);
       }
   
       if (moisture < user_prefs.moisture) {
         unsigned long start_time = millis();
         digitalWrite(WATER_EN, HIGH);
-        digitalWrite(WATER_PIN1, LOW);
-        digitalWrite(WATER_PIN2, HIGH);
+        digitalWrite(WATER_PIN1, HIGH);
+        digitalWrite(WATER_PIN2, LOW);
         
         current_time = millis();
         while (current_time - start_time < WATER_TIME){
           current_time = millis();
         }
-        
         digitalWrite(WATER_EN, LOW);
         digitalWrite(WATER_PIN1, LOW);
         digitalWrite(WATER_PIN2, LOW);
           
       }
-      Serial.print("Temperature (F): ");
-      Serial.println(temp);
   
       // Send moisture, temp, and light to server
-      char *moisture_str;
-  
-      if (moisture > MOIST_HIGH)
-        moisture_str = "HIGH";
-      else if (moisture < MOIST_LOW)
-        moisture_str = "LOW";
-      else moisture_str = "MEDIUM";
-  
-      char *light_str;
-      if (light > LIGHT_HIGH)
-        light_str = "HIGH";
-      else if (light < LIGHT_LOW)
-        light_str = "LOW";
-      else light_str = "MEDIUM";
-  
-      char temp_str[10];
-      snprintf(temp_str, sizeof(temp_str), "%f", temp);
-      sendInfo(user_prefs.dev_id, light_str, moisture_str, temp_str);
-      
+      sendInfo(user_prefs.dev_id, light, moisture, temp);
+      temp_avg = temp;
     }
   }
+  
+}
+
+float rollingAverage(float avg, float new_temp, float num_samples) {
+  avg -= avg / num_samples;
+  avg += new_temp / num_samples;
+
+  return avg;
   
 }
 
@@ -246,7 +247,7 @@ float readTemp(int n) {
   return (tempSum / (float) n);
 }
 
-void sendInfo(int devID, char *lightVal, char *moistVal, char *tempVal) {
+void sendInfo(int devID, int lightVal, int moistVal, float tempVal) {
   HTTPClient sendHTTP;
   String sendURL = deviceURL + devID + "/log/";
   sendHTTP.begin(sendURL);
@@ -264,13 +265,15 @@ void sendInfo(int devID, char *lightVal, char *moistVal, char *tempVal) {
   postInfo.concat(tempVal);
   postInfo.concat("}");
   
+  Serial.println("=========POST=========");
   Serial.println(postInfo);
+  Serial.println("=========POST END=========");
+  
   int sendRC = sendHTTP.POST(postInfo);
   if (sendRC > 0){
     String response = sendHTTP.getString(); //Get the response to the request
  
-    Serial.println(sendRC);   //Print return code
-    Serial.println(response);
+//    Serial.println(sendRC);   //Print return code
 
   }else{
  
@@ -281,7 +284,7 @@ void sendInfo(int devID, char *lightVal, char *moistVal, char *tempVal) {
    sendHTTP.end();
 }//end send info
 
-String *getDesired(int devID) {
+DynamicJsonDocument getDesired(int devID) {
   HTTPClient desiredHTTP;
   String desiredURL = deviceURL + devID; 
   desiredURL.concat("/desired/");
@@ -291,24 +294,18 @@ String *getDesired(int devID) {
   String getInfo = String(devID);
   
   
-  Serial.println(getInfo);
+//  Serial.println(getInfo);
   int sendRC = desiredHTTP.GET();
   String infoParse[2];
+  DynamicJsonDocument info(1024);
+  
   if (sendRC > 0){
     String response = desiredHTTP.getString(); //Get the response to the request
-    DynamicJsonDocument info(1024);
     deserializeJson(info,response);
-
-    String temp_str = info["temperature_min"];
-    String moist_str = info["moisture"];
-    
-    Serial.println(sendRC);   //Print return code
-    
-    infoParse[0] = temp_str;
-    infoParse[1] = moist_str;
-
-    Serial.println(infoParse[0]);
-    Serial.println(infoParse[1]);
+//    Serial.println(sendRC);   //Print return code
+    Serial.println("=========GET=========");
+    Serial.println(response);
+    Serial.println("=========END GET=========");
 
   }else{
  
@@ -318,5 +315,5 @@ String *getDesired(int devID) {
   }
   desiredHTTP.end();
 
-  return infoParse;
+  return info;
 }

@@ -1,4 +1,4 @@
-#define WATER_EN 35
+#define WATER_EN 23
 #define WATER_PIN1 32
 #define WATER_PIN2 33
 
@@ -20,8 +20,8 @@ void loop() {
 
   // Turn on pump
   digitalWrite(WATER_EN, HIGH);
-  digitalWrite(WATER_PIN1, LOW);
-  digitalWrite(WATER_PIN2, HIGH);
+  digitalWrite(WATER_PIN1, HIGH);
+  digitalWrite(WATER_PIN2, LOW);
 
   Serial.println("here");
   while (current_time - start_time < WATER_TIME) {
@@ -30,8 +30,7 @@ void loop() {
   Serial.println("finish watering");
 
   // Turn off pump
-  digitalWrite(WATER_PIN1, LOW);
-  digitalWrite(WATER_PIN2, LOW);
+  digitalWrite(WATER_EN, LOW);
 
 
   delay(10000);
