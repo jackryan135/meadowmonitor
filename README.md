@@ -48,3 +48,7 @@ tables.create_meadowmonitor_database(user=conf.user, password=conf.password, hos
 # fill out the tables with test data if desired
 tables.create_test_data()
 ```
+
+### To Deploy to ESP32 -
+
+Install the SPIFFS uploader: https://github.com/me-no-dev/arduino-esp32fs-plugin/releases/
