@@ -1,0 +1,52 @@
+<!DOCTYPE HTML>
+<html>
+
+<head>
+    <meta content="text/html; charset=ISO-8859-1" http-equiv="content-type">
+    <meta name="viewport" content="width = device-width, initial-scale = 1.0, maximum-scale = 1.0, user-scalable=0">
+    <title>ESP32 Demo</title>
+    <style>
+        body {
+            background-color: #d9fce5;
+            font-family: Arial, Helvetica, Sans-Serif;
+            Color: #000000;
+        }
+    </style>
+</head>
+
+<body>
+    <center>
+        <h1 style="color:#000000;">ESP32 Captive Portal</h1>
+        <h2 style="color:#000000 caption;">Input WiFi Credentials</h2>
+        <form action="/setup" method="post">
+            <label>SSID</label>
+            <br>
+            <input maxlength="30px" type='text' id="ssid_wifi" name="ssid" placeholder='WiFi network SSID'
+                style="width: 200px; padding: 5px 10px ; margin: 8px 0; border-radius: 4px; box-sizing:border-box">
+            <br>
+            <label>Password</label>
+            <br>
+            <input maxlength="30px" type="text" id="pass_wifi" name="password" placeholder="WiFi network password"
+                style="width: 200px; padding: 5px 10px ; margin: 8px 0; border-radius: 4px; box-sizing:border-box">
+            <br>
+            <label>Device ID</label>
+            <br>
+            <input maxlength="30px" type="text" id="pass_wifi" name="device_id" placeholder="Device ID"
+                style="width: 200px; padding: 5px 10px ; margin: 8px 0; border-radius: 4px; box-sizing:border-box">
+            <br>
+            <input type="submit">
+            <style>
+                input[type="submit"] {
+                    background-color: #72f29d;
+                    border: none;
+                    color: #000000;
+                    padding: 15px 48px;
+                    text-align: center;
+                    text-decoration: none;
+                    display: inline-block;
+                    font-size: 16px;
+                }
+            </style>
+        </form>
+    </center>
+</body>
