@@ -100,13 +100,6 @@ void setup() {
   SPIFFS.begin();
 
   delay(500);   //Delay needed before calling the WiFi.begin
- 
-//  WiFi.begin(ssid, password); 
-//  
-//  while (WiFi.status() != WL_CONNECTED) { //Check for the connection
-//    delay(1000);
-//    Serial.println("Connecting to WiFi..");
-//  }
 
   WiFi.mode(WIFI_AP_STA);
   WiFi.softAP(portal_ssid, portal_password);
@@ -151,22 +144,23 @@ void loop() {
   if (WiFi.status() == WL_CONNECTED) {
     
     unsigned long current_time = millis();
+
+    // Update ESP every 10 seconds
     if (current_time - n_time >= N) {
       Serial.println("UPDATE ESP");
-      // Update ESP from server
-      // => struct user_prefs
-      // Some values will be LOW-HIGH -> convert to analog values via sensor ranges
       n_time = current_time;
 
+      // Get data from web server
       DynamicJsonDocument info = getDesired(user_prefs.dev_id);
       String temp_str = info["temperature_min"];
       String moist_str = info["moisture"];
-      
+
+      // Convert to floating point
       if (temp_str.equals("null")) {
         user_prefs.temperature = TEMP;
       } else user_prefs.temperature = temp_str.toFloat();
 
-      
+      // Convert to integer values
       if (moist_str.equals("null")) {
         user_prefs.moisture = MOISTURE;
       } else {
@@ -178,10 +172,10 @@ void loop() {
       }
     }
   
-    
+
+    // Update server every 5 seconds
     if (current_time - m_time >= M) {
       Serial.println("UPDATE WEB SERVER");
-      // Update server
       m_time = current_time;
       
       // Read sensors, use actuators as necessary
@@ -189,18 +183,21 @@ void loop() {
       int moisture = analogRead(MOISTURE_PIN);
       int light = analogRead(LIGHT_PIN);
 
+      // Get rolling average, water pump interferes with readings
       if (temp_avg == 0.0)
         temp = rollingAverage(temp, temp, 5.0);
       else temp = rollingAverage(temp_avg, temp, 5.0);
   
-  
+
+      // Check temperature
       if (temp < user_prefs.temperature){
         digitalWrite(HEAT_PIN, HIGH);
       }
       else {
         digitalWrite(HEAT_PIN, LOW);
       }
-  
+
+      // Check moisture, water if necessary
       if (moisture < user_prefs.moisture) {
         unsigned long start_time = millis();
         digitalWrite(WATER_EN, HIGH);
@@ -233,6 +230,7 @@ float rollingAverage(float avg, float new_temp, float num_samples) {
   
 }
 
+// Average temperature readings over n readings
 float readTemp(int n) {
   float tempSum;
   for (int i = 0; i < n; i++) {
@@ -247,15 +245,18 @@ float readTemp(int n) {
   return (tempSum / (float) n);
 }
 
+// Send readings to web server
 void sendInfo(int devID, int lightVal, int moistVal, float tempVal) {
   HTTPClient sendHTTP;
   String sendURL = deviceURL + devID + "/log/";
   sendHTTP.begin(sendURL);
   sendHTTP.addHeader("Content-Type","application/json");
-  
+
+  // No ph sensor, set value to 0
   int phVal = 0;
+
+  // Construct POST
   String postInfo = "{\"light\": ";
-  
   postInfo.concat(lightVal);
   postInfo.concat(",\n\"moisture\": ");
   postInfo.concat(moistVal);
@@ -272,8 +273,6 @@ void sendInfo(int devID, int lightVal, int moistVal, float tempVal) {
   int sendRC = sendHTTP.POST(postInfo);
   if (sendRC > 0){
     String response = sendHTTP.getString(); //Get the response to the request
- 
-//    Serial.println(sendRC);   //Print return code
 
   }else{
  
@@ -282,9 +281,11 @@ void sendInfo(int devID, int lightVal, int moistVal, float tempVal) {
  
    }
    sendHTTP.end();
-}//end send info
+}
 
+// Update ESP with desired values stored on web server
 DynamicJsonDocument getDesired(int devID) {
+  // Construct GET
   HTTPClient desiredHTTP;
   String desiredURL = deviceURL + devID; 
   desiredURL.concat("/desired/");
@@ -292,9 +293,6 @@ DynamicJsonDocument getDesired(int devID) {
   desiredHTTP.addHeader("Content-Type","application/json");
 
   String getInfo = String(devID);
-  
-  
-//  Serial.println(getInfo);
   int sendRC = desiredHTTP.GET();
   String infoParse[2];
   DynamicJsonDocument info(1024);
@@ -302,7 +300,7 @@ DynamicJsonDocument getDesired(int devID) {
   if (sendRC > 0){
     String response = desiredHTTP.getString(); //Get the response to the request
     deserializeJson(info,response);
-//    Serial.println(sendRC);   //Print return code
+
     Serial.println("=========GET=========");
     Serial.println(response);
     Serial.println("=========END GET=========");
@@ -315,5 +313,6 @@ DynamicJsonDocument getDesired(int devID) {
   }
   desiredHTTP.end();
 
+  // Returns info in JSON format
   return info;
 }
