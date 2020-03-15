@@ -10,4 +10,4 @@ port = 3306
 
 trefle_token = 'WExIWTVxdDlJZ2FISG9sZjFCUkFYZz09'  # set it yourself but not on github
 
-populate_database = True
+populate_database = False

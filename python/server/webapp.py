@@ -64,7 +64,12 @@ def change_plant(device_id: int, species_id: int):
     device.idealPlantID = species_id
     device.idealMoisture = desired['moisture'].upper()
     device.idealLight = desired['light'].upper()
-    device.idealTemp = (desired['temperature_min'] + desired['temperature_max'])/2
+    if desired['temperature_min'] < 0:
+        device.idealTemp = (desired['temperature_min'] + 70)/2  # A safe temperature buffer
+    else:
+        device.idealTemp = desired['temperature_min']
+    # Trefle doesn't have a max temperature field
+    # device.idealTemp = (desired['temperature_min'] + desired['temperature_max'])/2
     # this isn't really used since we couldn't find a sensor for it
     device.idealPH = (desired['ph_max'] + desired['ph_min']) / 2
 
