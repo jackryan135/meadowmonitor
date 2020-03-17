@@ -41,14 +41,11 @@ class Devices(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     ownerID = Column(Integer, ForeignKey('users.id'), nullable=False)  # foreign key -> users
     label = Column(String(255))
-    # idealPlantSpecies = Column(String)  # changed to idealPlantID
     idealPlantID = Column(Integer, ForeignKey('plants.id'))
     idealPH = Column(Float)
     idealTemp = Column(Float)
-    # idealLight = Column(Float)  # go to str
-    # idealMoisture = Column(Float)  # go to str
-    idealLight = Column(String(20))  # go to str
-    idealMoisture = Column(String(20))  # go to str
+    idealLight = Column(String(20))
+    idealMoisture = Column(String(20))
     date = Column(DateTime, server_default=sqlalchemy.func.now())
 
     user = relationship('Users', back_populates='devices')
@@ -66,7 +63,6 @@ class Data(Base):
     __tablename__ = 'data'
     id = Column(Integer, primary_key=True, autoincrement=True)
     deviceID = Column(Integer, ForeignKey('devices.id'), nullable=False)  # foreign key -> devices
-    # plantSpecies = Column(String)  # changed to plantID
     plantID = Column(Integer, ForeignKey('plants.id'))
     ph = Column(Float)
     temp = Column(Float)
@@ -103,40 +99,9 @@ class Plants(Base):
         return f'<Plants: id={self.id}, plantName={self.plantName}>'
 
 
-# class Data(object):
-#     pass
-#
-#
-# class Devices(object):
-#     pass
-#
-#
-# class Users(object):
-#     pass
-
-
 def _mysql_engine(user: str, password: str, host: str, port: int, database: str, pool_recycle: int = 3600) -> Engine:
     return create_engine(f'mysql+mysqlconnector://{user}:{password}@{host}:{port}/{database}',
                          pool_recycle=pool_recycle)
-
-
-# NOTE: This isn't used if we're making schemas in sqlalchemy
-# def map_session(user: str, password: str, host: str, port: int, database: str) -> sqlalchemy.orm.session.Session:
-#     # engine = create_engine(f'mysql+mysqlconnector://{user}:{password}@{host}:{port}/{database}',
-#     #                        pool_recycle=3600)
-#     engine = _mysql_engine(user, password, host, port, database)
-#
-#     metadata = MetaData(engine)
-#     moz_data = Table('data', metadata, autoload=True)
-#     mapper(Data, moz_data)
-#     moz_devices = Table('devices', metadata, autoload=True)
-#     mapper(Devices, moz_devices)
-#     moz_users = Table('users', metadata, autoload=True)
-#     mapper(Users, moz_users)
-#
-#     Session = sessionmaker(bind=engine)
-#     session = Session()
-#     return session
 
 
 def new_session(user: str, password: str, host: str, port: int, database: str) -> sqlalchemy.orm.session.Session:
@@ -146,7 +111,7 @@ def new_session(user: str, password: str, host: str, port: int, database: str) -
     return session
 
 
-# # # testing / data population functions # # #
+# # # Testing / data population functions # # #
 
 def create_meadowmonitor_database(user: str, password: str, host: str, port: int, database: str):
     engine = _mysql_engine(user, password, host, port, database)
@@ -164,6 +129,8 @@ def init_plants():
     sesh.add(sentinel)
     sesh.commit()
 
+
+# # # Not used in production # # #
 
 def create_test_data():
     sesh = new_session(user=conf.user, password=conf.password, host=conf.host, port=conf.port,

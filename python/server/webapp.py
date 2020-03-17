@@ -9,11 +9,7 @@ from server.trefle import search_species_complete, get_desired, get_species
 
 
 def history(device_id: int, rows: int = 5):
-    # TODO: update for table chances
-    #  return the most recent n rows for the given device
     session = new_session(conf.user, conf.password, conf.host, conf.port, conf.database)
-    # incomplete, but we can filter by daterange if desired:
-    # session.query(Data).filter_by(deviceID=device_id).filter(func.DATE(Data.date) > delta)
     data_rows = session.query(Data).filter_by(deviceID=device_id).order_by(Data.date.desc()).all()
     if len(data_rows) == 0 or data_rows is None:
         device = session.query(Devices).filter_by(id=device_id).one_or_none()
@@ -35,14 +31,6 @@ def get_plant(device_id: int):
 
 
 def change_plant(device_id: int, species_id: int):
-    # # TODO: update for table changes
-    # # TODO: create a 'update device plant' method, probably in tables
-    # # TODO: obv needs to throw a 404 if the device doesn't exist, etc
-    # species = species.decode('utf-8')  # unfortunate that this is required with plaintext parameters :(
-    # print(device_id, species)
-    #
-    # # return "OK"
-    # return None, 501
     session = new_session(conf.user, conf.password, conf.host, conf.port, conf.database)
     device = session.query(Devices).filter_by(id=device_id).one_or_none()  # type: Devices
     if device is None:
@@ -65,20 +53,19 @@ def change_plant(device_id: int, species_id: int):
     device.idealMoisture = desired['moisture'].upper()
     device.idealLight = desired['light'].upper()
     if desired['temperature_min'] < 0:
-        device.idealTemp = (desired['temperature_min'] + 70)/2  # A safe temperature buffer
+        device.idealTemp = (desired['temperature_min'] + 70) / 2  # A safe temperature buffer
     else:
         device.idealTemp = desired['temperature_min']
-    # Trefle doesn't have a max temperature field
+    # Trefle doesn't have a max temperature field at this time
     # device.idealTemp = (desired['temperature_min'] + desired['temperature_max'])/2
-    # this isn't really used since we couldn't find a sensor for it
+
+    # pH isn't really used since we couldn't find a sensor for it, but may be in the future.
     device.idealPH = (desired['ph_max'] + desired['ph_min']) / 2
 
     session.commit()
-    # return "OK", 200
     return redirect(f"http://www.meadowmonitor.com/devicedetails.php?id={device_id}")
 
 
-# def override_values(device_id: int, values: Dict[str, Any]):
 def override_values(device_id: int, temperature: float, moisture: str):
     session = new_session(conf.user, conf.password, conf.host, conf.port, conf.database)
     device = session.query(Devices).filter_by(id=device_id).one_or_none()  # type: Devices
@@ -92,10 +79,8 @@ def override_values(device_id: int, temperature: float, moisture: str):
         device.idealMoisture = moisture.upper()
     session.commit()
 
-    # if 'temperature' not in values and 'moisture' not in values:
-    #     return "Empty request body", 204
-    # return "OK", 200
     return redirect(f"http://www.meadowmonitor.com/devicedetails.php?id={device_id}")
+
 
 def list_devices(user_id: int):
     session = new_session(conf.user, conf.password, conf.host, conf.port, conf.database)
@@ -115,13 +100,8 @@ def list_devices(user_id: int):
     return devices
 
 
-# def add_device(user_id: int, values: Dict[str, Any]):
 def add_device(user_id: int, label: str = None):
     session = new_session(conf.user, conf.password, conf.host, conf.port, conf.database)
-    # if 'label' in values:
-    #     device = Devices(ownerID=user_id, label=values['label'])
-    # else:
-    #     device = Devices(ownerID=user_id)
     device = Devices(ownerID=user_id)
     if label is None or label == "":
         device.label = 'Untitled device'

@@ -37,10 +37,6 @@ paths:
                 type: string
               temperature_min:
                 type: number
-#              ph_min:
-#                type: number
-#              ph_max:
-#                type: number
               ph:
                 type: number
         404:
@@ -65,10 +61,6 @@ paths:
           schema:
             type: object
             properties:
-              #              date:
-              #                type: string
-              #              species:
-              #                type: string
               light:
                 type: number
               moisture:
@@ -157,8 +149,6 @@ paths:
       tags:
         - webapp
       summary: "Change the plant species of the device"
-#      consumes:
-#        - "text/plain"
       consumes:
         - "application/x-www-form-urlencoded"
       parameters:
@@ -185,8 +175,6 @@ paths:
       tags:
         - webapp
       summary: "Override the device target values"
-#      consumes:
-#        - "text/plain"
       consumes:
         - "application/x-www-form-urlencoded"
       parameters:
@@ -196,18 +184,6 @@ paths:
           type: integer
           minimum: 1
           description: "Device ID"
-#        - in: body
-#          name: values
-#          required: true
-#          schema:
-#            type: object
-#            properties:
-#              moisture:
-#                type: string
-#                description: "ideal moisture (LOW, HIGH, MEDIUM)"
-#              temperature:
-#                type: number
-#                description: "ideal temperature (°F)"
         - in: formData
           name: temperature
           required: true
@@ -275,11 +251,6 @@ paths:
           required: false
           type: string
           description: "(optional) label for newly created device"
-#          schema:
-#            type: object
-#            properties:
-#              label:
-#                type: string
       responses:
         201:
           description: "Successful device add. Returns the new device ID."
