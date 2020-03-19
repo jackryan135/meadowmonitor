@@ -1,5 +1,7 @@
 # Meadow Monitor
 
+Meadow Monitor is fully autonomous, one time setup system that allows the user to take care of their plants completely remotely. Meadow Monitor provides a web portal as well as a mobile application for the user to input their plant information as well as monitor their plant health. Meadow Monitor can detect the light,temperature, and moisture level of the plant it is connected to and can provide adequate heat and water as needed. Meadow Monitor takes advantage of the Treflio.io API to make sure that the plant is getting the best care with the most up to date information there is.
+
 ### To deploy on MAMP -
 
 To deploy these files to MAMP, copy common.php and config.php from /private_files/ to 
@@ -31,7 +33,7 @@ The wesite will be accessible on the host address at port 8080.
 
 ### To Initialize Database -
 
-To initialize the MySQL database, first turn on the Apache and MySQL servers by pressing the "Start Servers" button on the MAMP window. ~~Then, visit the URL [localhost:8080/install.php](localhost:8080/install.php)~~
+To initialize the MySQL database, first turn on the Apache and MySQL servers by pressing the "Start Servers" button on the MAMP window. 
 
 The primary difference here is that we're initializing the tables using SQLAlchemy in Python; see `server/tables.py` for the schema.
 ```py
